@@ -3,7 +3,7 @@
 ## Integrantes
 
 - Valencia Borja Omar Rutilio
-- Nombre del segundo integrante: pendiente de confirmar
+- Angel Gabriel Antonio Mendez
 
 ## Descripcion del proyecto
 
@@ -92,7 +92,7 @@ Relacion:
 
 - Un genero puede tener muchas peliculas.
 
-### 5. Resenas
+### 5. Reseñas
 
 Guarda los comentarios y calificaciones que los usuarios hacen sobre las peliculas.
 
@@ -181,8 +181,8 @@ https://github.com/ProyectoFinalPrograweb/ProyectoFinal
 
 Tablero de GitHub Projects:
 
-```text
-Pendiente: pegar aqui el link del tablero publico cuando sea creado.
+https://github.com/orgs/ProyectoFinalPrograweb/projects/1/views/1
+
 ```
 
 El tablero debera configurarse con las siguientes columnas:
@@ -194,8 +194,6 @@ El tablero debera configurarse con las siguientes columnas:
 - Done
 
 ## Tareas iniciales para GitHub Projects
-
-La planeacion inicial debe incluir al menos 10 tareas por desarrollador en la columna Backlog.
 
 ### Tareas sugeridas para Omar
 
@@ -210,7 +208,7 @@ La planeacion inicial debe incluir al menos 10 tareas por desarrollador en la co
 9. Implementar edicion de peliculas.
 10. Implementar eliminacion de peliculas.
 
-### Tareas sugeridas para segundo integrante
+### Tareas sugeridas para Angel Gabriel Antonio Mendez
 
 1. Crear modelo y migracion de generos.
 2. Implementar CRUD de generos.
