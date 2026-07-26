@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Genero extends Model
 {
-    //
+    protected $fillable = ['nombre', 'descripcion'];
+
+    public function peliculas()
+    {
+        return $this->hasMany(Pelicula::class);
+    }
 }
