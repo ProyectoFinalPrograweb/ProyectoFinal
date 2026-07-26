@@ -1,0 +1,222 @@
+# Cinema ITO
+
+## Integrantes
+
+- Valencia Borja Omar Rutilio
+- Angel Gabriel Antonio Mendez
+
+## Descripcion del proyecto
+
+Cinema ITO sera una plataforma web para registrar, comentar, calificar y recomendar peliculas mexicanas vistas por los usuarios. La idea principal es crear una comunidad donde cada usuario pueda compartir su opinion sobre peliculas mexicanas, descubrir nuevas recomendaciones y guardar las peliculas que le interesan.
+
+## Problematica que resuelve
+
+Actualmente muchas recomendaciones de peliculas mexicanas se pierden en conversaciones, redes sociales o listas personales. No siempre existe un espacio organizado donde los usuarios puedan registrar que peliculas mexicanas han visto, calificarlas, escribir una opinion y consultar comentarios de otras personas.
+
+Cinema ITO resuelve esta problematica centralizando la informacion en una plataforma colaborativa. El sistema permitira consultar peliculas mexicanas, publicar resenas, asignar calificaciones, guardar favoritas y facilitar la interaccion entre usuarios interesados en el cine mexicano.
+
+## Modulos principales del sistema
+
+El sistema tendra al menos las siguientes entidades o tablas relacionadas:
+
+### 1. Usuarios
+
+Almacena la informacion de las personas que usaran la plataforma.
+
+Campos principales:
+
+- `id`
+- `nombre`
+- `email`
+- `password`
+- `rol_id`
+- `created_at`
+- `updated_at`
+
+Relacion:
+
+- Un usuario pertenece a un rol.
+- Un usuario puede publicar muchas peliculas.
+- Un usuario puede escribir muchas resenas.
+- Un usuario puede guardar muchas peliculas favoritas.
+
+### 2. Roles
+
+Define los permisos o tipos de usuario dentro del sistema.
+
+Campos principales:
+
+- `id`
+- `nombre`
+- `descripcion`
+
+Relacion:
+
+- Un rol puede estar asignado a muchos usuarios.
+
+### 3. Peliculas
+
+Registra las peliculas mexicanas publicadas en la plataforma.
+
+Campos principales:
+
+- `id`
+- `titulo`
+- `director`
+- `anio`
+- `sinopsis`
+- `imagen`
+- `genero_id`
+- `usuario_id`
+- `created_at`
+- `updated_at`
+
+Relacion:
+
+- Una pelicula pertenece a un genero.
+- Una pelicula fue publicada por un usuario.
+- Una pelicula puede tener muchas resenas.
+- Una pelicula puede estar en favoritos de muchos usuarios.
+
+### 4. Generos
+
+Clasifica las peliculas por categoria.
+
+Campos principales:
+
+- `id`
+- `nombre`
+- `descripcion`
+
+Relacion:
+
+- Un genero puede tener muchas peliculas.
+
+### 5. Reseñas
+
+Guarda los comentarios y calificaciones que los usuarios hacen sobre las peliculas.
+
+Campos principales:
+
+- `id`
+- `usuario_id`
+- `pelicula_id`
+- `comentario`
+- `calificacion`
+- `created_at`
+- `updated_at`
+
+Relacion:
+
+- Una resena pertenece a un usuario.
+- Una resena pertenece a una pelicula.
+
+### 6. Favoritos
+
+Permite que los usuarios guarden peliculas que les gustaron o quieren ver despues.
+
+Campos principales:
+
+- `id`
+- `usuario_id`
+- `pelicula_id`
+- `created_at`
+
+Relacion:
+
+- Un usuario puede tener muchas peliculas favoritas.
+- Una pelicula puede ser marcada como favorita por muchos usuarios.
+
+## Roles de usuario
+
+### Administrador
+
+Puede gestionar todo el sistema:
+
+- Administrar usuarios.
+- Administrar roles.
+- Crear, editar y eliminar peliculas.
+- Administrar generos.
+- Revisar o eliminar resenas inapropiadas.
+
+### Moderador
+
+Puede apoyar en el control del contenido:
+
+- Revisar peliculas publicadas.
+- Revisar comentarios o resenas.
+- Ocultar o eliminar contenido inapropiado.
+
+### Usuario registrado
+
+Puede usar las funciones principales de la plataforma:
+
+- Registrarse e iniciar sesion.
+- Publicar peliculas mexicanas vistas.
+- Comentar peliculas.
+- Calificar peliculas.
+- Guardar peliculas favoritas.
+- Consultar recomendaciones y resenas de otros usuarios.
+
+## Relaciones principales
+
+```text
+roles 1 --- N usuarios
+usuarios 1 --- N peliculas
+generos 1 --- N peliculas
+usuarios 1 --- N resenas
+peliculas 1 --- N resenas
+usuarios N --- N peliculas mediante favoritos
+```
+
+## Repositorio
+
+Repositorio de GitHub:
+
+```text
+https://github.com/ProyectoFinalPrograweb/ProyectoFinal
+```
+
+## GitHub Projects
+
+Tablero de GitHub Projects:
+
+https://github.com/orgs/ProyectoFinalPrograweb/projects/1/views/1
+
+```
+
+El tablero debera configurarse con las siguientes columnas:
+
+- Backlog
+- To Do
+- In Progress
+- In Review
+- Done
+
+## Tareas iniciales para GitHub Projects
+
+### Tareas sugeridas para Omar
+
+1. Crear estructura inicial del proyecto.
+2. Configurar repositorio y README.
+3. Definir migracion de usuarios.
+4. Definir migracion de roles.
+5. Implementar autenticacion de usuarios.
+6. Crear modelo y migracion de peliculas.
+7. Implementar listado de peliculas.
+8. Implementar registro de peliculas.
+9. Implementar edicion de peliculas.
+10. Implementar eliminacion de peliculas.
+
+### Tareas sugeridas para Angel Gabriel Antonio Mendez
+
+1. Crear modelo y migracion de generos.
+2. Implementar CRUD de generos.
+3. Crear modelo y migracion de resenas.
+4. Implementar comentarios por pelicula.
+5. Implementar calificacion de peliculas.
+6. Crear modelo y migracion de favoritos.
+7. Implementar agregar pelicula a favoritos.
+8. Implementar listado de favoritos por usuario.
+9. Implementar busqueda de peliculas.
+10. Probar funcionalidades principales del sistema.
