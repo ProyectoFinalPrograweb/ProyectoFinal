@@ -1,0 +1,95 @@
+/* ExplorarPage */
+.explorar-page {
+  padding-top: calc(var(--navbar-height) + var(--spacing-2xl));
+  padding-bottom: var(--spacing-3xl);
+}
+
+.explorar-header {
+  margin-bottom: var(--spacing-xl);
+}
+.explorar-header h1 { margin-bottom: 6px; }
+.explorar-header p { font-size: 0.9rem; color: var(--color-text-muted); margin: 0; }
+
+/* Estrenos */
+.explorar-estrenos { margin-bottom: var(--spacing-2xl); }
+
+.estrenos-scroll { gap: var(--spacing-lg); }
+
+.estreno-card {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: var(--transition-normal);
+}
+.estreno-card:hover {
+  border-color: var(--color-border-hover);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card);
+}
+
+.estreno-img-wrap {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+}
+.estreno-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.estreno-card:hover .estreno-img-wrap img { transform: scale(1.06); }
+.estreno-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+  display: flex;
+  align-items: flex-end;
+  padding: var(--spacing-sm);
+  gap: 4px;
+}
+
+.estreno-info {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.estreno-info h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--color-text);
+}
+.estreno-fecha { font-size: 0.75rem; color: var(--color-primary); margin: 0; font-weight: 600; }
+.estreno-sinopsis { font-size: 0.78rem; color: var(--color-text-muted); margin: 0; line-height: 1.5; }
+
+/* Controles */
+.explorar-controls {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+.explorar-search { flex: 1; min-width: 240px; }
+.explorar-select { width: auto; min-width: 180px; }
+
+/* Resultados */
+.results-count {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-lg);
+}
+.explorar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 600px) {
+  .explorar-controls { flex-direction: column; }
+  .explorar-select   { width: 100%; }
+}

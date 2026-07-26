@@ -1,0 +1,331 @@
+/* ============================================================
+   MOVIE DETAIL PAGE — Cinema ITO
+   ============================================================ */
+
+.detail-hero {
+  position: relative;
+  height: 420px;
+  overflow: hidden;
+}
+.detail-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  filter: blur(2px) brightness(0.5);
+}
+.detail-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(10,10,10,0.3) 0%, var(--color-bg) 100%);
+}
+
+/* Main layout */
+.detail-main {
+  margin-top: -160px;
+  position: relative;
+  z-index: 2;
+  padding-bottom: var(--spacing-3xl);
+}
+
+/* Breadcrumb */
+.detail-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--spacing-xl);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+.detail-breadcrumb a { transition: var(--transition-fast); }
+.detail-breadcrumb a:hover { color: var(--color-primary); }
+.detail-breadcrumb span:last-child { color: var(--color-text); }
+
+/* Layout 2 columnas */
+.detail-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+/* Poster */
+.detail-poster-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+.detail-poster-wrap {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-elevated);
+  aspect-ratio: 2/3;
+}
+.detail-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.detail-poster-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+.detail-action-btn {
+  width: 100%;
+  justify-content: center;
+}
+.detail-action-btn.in-list {
+  color: #10b981;
+  border-color: rgba(16,185,129,0.4);
+  background: rgba(16,185,129,0.08);
+}
+.detail-share-btn {
+  width: 100%;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.detail-mini-stats {
+  display: flex;
+  justify-content: space-between;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+.mini-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.mini-stat-label {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.mini-stat-value {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* Info column */
+.detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.detail-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.detail-title {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+.meta-dot { color: var(--color-text-dim); }
+
+.detail-sinopsis {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: rgba(240,240,240,0.75);
+  margin: 0;
+}
+
+.detail-play-btn {
+  width: fit-content;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+}
+
+/* Tabs */
+.detail-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+  gap: 0;
+  margin-top: var(--spacing-md);
+}
+.detail-tab {
+  padding: 12px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition-fast);
+}
+.detail-tab.active { color: var(--color-text); }
+.detail-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+}
+.detail-tab:hover { color: var(--color-text); }
+
+/* Reseñas */
+.detail-resenas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+.resena-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+}
+.resena-form h4 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.resena-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.resena-submit-btn {
+  align-self: flex-end;
+  padding: 9px 20px;
+  font-size: 0.85rem;
+}
+
+.no-resenas {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  padding: var(--spacing-lg);
+}
+
+.resena-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  transition: var(--transition-fast);
+}
+.resena-card:hover { border-color: var(--color-border-hover); }
+
+.resena-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+.resena-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--gradient-magenta);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.resena-nombre {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.resena-fecha {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+.resena-header .star-rating { margin-left: auto; }
+
+.resena-comentario {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: rgba(240,240,240,0.8);
+  margin: 0;
+}
+.resena-footer { display: flex; justify-content: flex-end; }
+.resena-like-btn { font-size: 0.8rem; color: var(--color-text-muted); }
+.resena-like-btn:hover { color: var(--color-primary); }
+
+/* Detalles técnicos */
+.detail-tecnicos {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: var(--spacing-md);
+}
+.tecnico-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--color-border);
+  gap: var(--spacing-lg);
+}
+.tecnico-row:last-child { border-bottom: none; }
+.tecnico-label {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+.tecnico-value {
+  font-size: 0.88rem;
+  color: var(--color-text);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Relacionadas */
+.detail-relacionadas { margin-top: var(--spacing-xl); }
+
+@media (max-width: 900px) {
+  .detail-layout { grid-template-columns: 1fr; }
+  .detail-poster-col {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: var(--spacing-lg);
+    align-items: start;
+  }
+  .detail-poster-wrap { aspect-ratio: 2/3; }
+  .detail-actions { grid-column: 2; }
+  .detail-mini-stats { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .detail-poster-col { grid-template-columns: 1fr; }
+  .detail-actions { display: flex; flex-direction: row; }
+  .detail-hero { height: 300px; }
+  .detail-main { margin-top: -100px; }
+}
