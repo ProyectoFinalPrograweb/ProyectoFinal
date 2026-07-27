@@ -10,7 +10,14 @@ class AllowFrontendCors
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $allowedOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173'];
+        $configuredFrontend = rtrim((string) config('app.frontend_url'), '/');
+        $configuredApp = rtrim((string) config('app.url'), '/');
+        $allowedOrigins = array_values(array_filter([
+            'http://127.0.0.1:5173',
+            'http://localhost:5173',
+            $configuredFrontend,
+            $configuredApp,
+        ]));
         $origin = $request->headers->get('Origin', 'http://127.0.0.1:5173');
 
         $headers = [

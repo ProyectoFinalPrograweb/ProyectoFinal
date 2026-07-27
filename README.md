@@ -1,6 +1,6 @@
 # Cinema ITO
 
-> Estado actual: Laravel + React + MySQL local, con Sanctum, roles, rutas protegidas, Form Requests, API Resources, panel Admin, panel Moderador, Bruno y respaldo SQL.
+> Estado actual: Laravel + React + MySQL, desplegado en VPS, con Sanctum, roles, rutas protegidas, Form Requests, API Resources, panel Admin, panel Moderador, Bruno y respaldo SQL.
 
 ## Integrantes
 

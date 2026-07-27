@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { saveSession } from '../services/api';
+import { API_URL, saveSession } from '../services/api';
 import './LoginPage.css';
-
-const API_URL = 'http://127.0.0.1:8000/api';
 
 export default function LoginPage() {
   const navigate = useNavigate();
