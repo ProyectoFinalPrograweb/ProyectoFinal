@@ -9,6 +9,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
+Route::middleware('auth:sanctum')->put('/profile', [AuthController::class, 'updateProfile']);
+Route::middleware('auth:sanctum')->put('/profile/password', [AuthController::class, 'updatePassword']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 Route::get('/generos', [CinemaController::class, 'generos']);
@@ -17,6 +19,7 @@ Route::get('/peliculas/{pelicula}', [CinemaController::class, 'pelicula']);
 Route::middleware('auth:sanctum')->post('/peliculas/{pelicula}/resenas', [CinemaController::class, 'storeResena']);
 Route::middleware('auth:sanctum')->get('/favoritos', [CinemaController::class, 'favoritos']);
 Route::middleware('auth:sanctum')->post('/peliculas/{pelicula}/favorito', [CinemaController::class, 'toggleFavorito']);
+Route::middleware('auth:sanctum')->put('/peliculas/{pelicula}/vista', [CinemaController::class, 'updateVista']);
 Route::middleware(['auth:sanctum', 'role:Administrador'])->get('/admin/resumen', [CinemaController::class, 'adminResumen']);
 Route::middleware(['auth:sanctum', 'role:Administrador,Moderador'])->get('/moderador/resumen', [CinemaController::class, 'moderadorResumen']);
 Route::middleware(['auth:sanctum', 'role:Administrador,Moderador'])->delete('/moderador/resenas/{resena}', [CinemaController::class, 'destroyResena']);

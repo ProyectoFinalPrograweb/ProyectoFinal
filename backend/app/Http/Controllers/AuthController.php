@@ -6,6 +6,8 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
@@ -70,6 +72,36 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Sesion cerrada correctamente.',
+        ]);
+    }
+
+    public function updateProfile(UpdateProfileRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        $user->update($request->validated());
+
+        return response()->json([
+            'message' => 'Perfil actualizado correctamente.',
+            'user' => UserResource::make($user->load('role')),
+        ]);
+    }
+
+    public function updatePassword(UpdatePasswordRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+
+        if (! Hash::check($validated['current_password'], $request->user()->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['La contrasena actual no es correcta.'],
+            ]);
+        }
+
+        $request->user()->forceFill([
+            'password' => Hash::make($validated['password']),
+        ])->save();
+
+        return response()->json([
+            'message' => 'Contrasena actualizada correctamente.',
         ]);
     }
 

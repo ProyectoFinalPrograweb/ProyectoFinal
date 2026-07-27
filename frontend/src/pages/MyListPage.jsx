@@ -15,6 +15,8 @@ export default function MyListPage() {
   const [miLista, setMiLista] = useState([]);
   const [generos, setGeneros] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [savingVista, setSavingVista] = useState(null);
+  const [message, setMessage] = useState('');
   const user = getCurrentUser();
 
   useEffect(() => {
@@ -39,6 +41,41 @@ export default function MyListPage() {
     const matchGenero = genero === 0 ? true : p.genero_id === genero;
     return matchSearch && matchFilter && matchGenero;
   });
+
+  const toggleVista = async pelicula => {
+    setSavingVista(pelicula.id);
+    setMessage('');
+
+    try {
+      const response = await apiRequest(`/peliculas/${pelicula.id}/vista`, {
+        method: 'PUT',
+        body: JSON.stringify({ vista: !pelicula.vista }),
+      });
+
+      setMiLista(current => current.map(item => (
+        item.id === pelicula.id ? { ...item, vista: response.vista } : item
+      )));
+      setMessage(response.message);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSavingVista(null);
+    }
+  };
+
+  const renderMovieWithActions = pelicula => (
+    <div key={pelicula.id} className="mylist-movie-shell">
+      <MovieCard pelicula={pelicula} variant={view === 'list' ? 'list' : 'default'} />
+      <button
+        type="button"
+        className={`watched-toggle ${pelicula.vista ? 'is-watched' : ''}`}
+        onClick={() => toggleVista(pelicula)}
+        disabled={savingVista === pelicula.id}
+      >
+        {savingVista === pelicula.id ? 'Guardando...' : pelicula.vista ? 'Vista' : 'Marcar como vista'}
+      </button>
+    </div>
+  );
 
   return (
     <div className="page-wrapper">
@@ -100,6 +137,8 @@ export default function MyListPage() {
               </div>
             </div>
 
+            {message && <div className="mylist-message">{message}</div>}
+
             {loading ? (
               <p>Cargando lista...</p>
             ) : filtered.length === 0 ? (
@@ -111,12 +150,12 @@ export default function MyListPage() {
               </div>
             ) : view === 'grid' ? (
               <div className="mylist-grid animate-fade-in">
-                {filtered.map(p => <MovieCard key={p.id} pelicula={p} />)}
+                {filtered.map(renderMovieWithActions)}
                 <Link to="/explorar" className="add-card"><span className="add-card-icon">+</span><span>Agregar Nueva</span></Link>
               </div>
             ) : (
               <div className="mylist-list-view animate-fade-in">
-                {filtered.map(p => <MovieCard key={p.id} pelicula={p} variant="list" />)}
+                {filtered.map(renderMovieWithActions)}
               </div>
             )}
           </>

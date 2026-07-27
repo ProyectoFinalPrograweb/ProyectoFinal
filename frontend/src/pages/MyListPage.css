@@ -145,6 +145,59 @@
   gap: var(--spacing-lg);
 }
 
+.mylist-message {
+  margin-bottom: var(--spacing-lg);
+  padding: 12px 16px;
+  background: rgba(233,30,140,0.1);
+  border: 1px solid rgba(233,30,140,0.25);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-size: 0.86rem;
+}
+
+.mylist-movie-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mylist-list-view .mylist-movie-shell {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-sm);
+}
+
+.watched-toggle {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(233,30,140,0.35);
+  border-radius: var(--radius-full);
+  background: rgba(233,30,140,0.08);
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.watched-toggle:hover {
+  background: rgba(233,30,140,0.16);
+  transform: translateY(-1px);
+}
+
+.watched-toggle.is-watched {
+  border-color: rgba(16,185,129,0.45);
+  background: rgba(16,185,129,0.1);
+  color: #34d399;
+}
+
+.watched-toggle:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
 /* Add card */
 .add-card {
   display: flex;

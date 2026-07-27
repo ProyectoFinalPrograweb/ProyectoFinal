@@ -24,7 +24,7 @@ class PeliculaResource extends JsonResource
             'estreno' => (int) $this->anio >= 2021 ? 'Reciente' : null,
             'tags' => array_values(array_filter([$this->genero?->nombre])),
             'enMiLista' => (bool) ($this->en_mi_lista ?? false),
-            'vista' => false,
+            'vista' => (bool) ($this->vista ?? false),
             'resenas_count' => (int) ($this->resenas_count ?? 0),
             'resenas' => ResenaResource::collection($this->whenLoaded('resenas')),
             'relacionadas' => PeliculaResource::collection($this->whenLoaded('relacionadas')),

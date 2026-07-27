@@ -119,7 +119,14 @@ class CinemaController extends Controller
             ->withCount(['resenas', 'marcadosPorUsuarios as favoritos_count'])
             ->whereHas('marcadosPorUsuarios', fn ($query) => $query->where('users.id', $request->user()->id))
             ->get()
-            ->each(fn (Pelicula $pelicula) => $pelicula->en_mi_lista = true);
+            ->each(function (Pelicula $pelicula) use ($request): void {
+                $favorito = Favorito::where('usuario_id', $request->user()->id)
+                    ->where('pelicula_id', $pelicula->id)
+                    ->first();
+
+                $pelicula->en_mi_lista = true;
+                $pelicula->vista = (bool) $favorito?->vista;
+            });
 
         return response()->json(['data' => PeliculaResource::collection($peliculas)]);
     }
@@ -148,6 +155,25 @@ class CinemaController extends Controller
             'message' => 'Pelicula agregada a tu lista.',
             'enMiLista' => true,
         ], 201);
+    }
+
+    public function updateVista(Request $request, Pelicula $pelicula): JsonResponse
+    {
+        $validated = $request->validate([
+            'vista' => ['required', 'boolean'],
+        ]);
+
+        $favorito = Favorito::firstOrCreate([
+            'usuario_id' => $request->user()->id,
+            'pelicula_id' => $pelicula->id,
+        ]);
+
+        $favorito->update(['vista' => $validated['vista']]);
+
+        return response()->json([
+            'message' => $favorito->vista ? 'Pelicula marcada como vista.' : 'Pelicula marcada como por ver.',
+            'vista' => (bool) $favorito->vista,
+        ]);
     }
 
     public function adminResumen(): JsonResponse
