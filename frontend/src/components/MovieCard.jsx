@@ -1,12 +1,31 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { apiRequest, getCurrentUser } from '../services/api';
 import './MovieCard.css';
 
 export default function MovieCard({ pelicula, variant = 'default' }) {
   const [hovered, setHovered] = useState(false);
   const [liked, setLiked] = useState(pelicula?.enMiLista || false);
+  const user = getCurrentUser();
 
   if (!pelicula) return null;
+
+  const toggleFavorite = async event => {
+    event.preventDefault();
+
+    if (!user) {
+      return;
+    }
+
+    try {
+      const response = await apiRequest(`/peliculas/${pelicula.id}/favorito`, {
+        method: 'POST',
+      });
+      setLiked(response.enMiLista);
+    } catch {
+      return;
+    }
+  };
 
   if (variant === 'list') {
     return (
@@ -29,7 +48,7 @@ export default function MovieCard({ pelicula, variant = 'default' }) {
             </Link>
             <button
               className={`card-list-heart ${liked ? 'active' : ''}`}
-              onClick={() => setLiked(!liked)}
+              onClick={toggleFavorite}
             >
               {liked ? '♥' : '♡'}
             </button>
@@ -47,7 +66,7 @@ export default function MovieCard({ pelicula, variant = 'default' }) {
             <Link to={`/pelicula/${pelicula.id}`} className="btn btn-primary">
               ▶ Ver Detalles
             </Link>
-            <button className={`btn btn-outline ${liked ? 'in-list' : ''}`} onClick={() => setLiked(!liked)}>
+            <button className={`btn btn-outline ${liked ? 'in-list' : ''}`} onClick={toggleFavorite}>
               {liked ? '✓ En Mi Lista' : '+ Mi Lista'}
             </button>
           </div>
@@ -93,7 +112,7 @@ export default function MovieCard({ pelicula, variant = 'default' }) {
               <button className="card-play-btn">▶</button>
               <button
                 className={`card-list-btn ${liked ? 'active' : ''}`}
-                onClick={e => { e.preventDefault(); setLiked(!liked); }}
+                onClick={toggleFavorite}
               >
                 {liked ? '✓' : '+'}
               </button>

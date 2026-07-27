@@ -1,0 +1,19 @@
+meta {
+  name: Error 403 Cinefilo En Admin
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/admin/resumen
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{userToken}}
+}
+
+headers {
+  Accept: application/json
+}

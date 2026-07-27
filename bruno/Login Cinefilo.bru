@@ -1,0 +1,27 @@
+meta {
+  name: Login Cinefilo
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "user@cinemaito.com",
+    "password": "Usuario123!"
+  }
+}
+
+script:post-response {
+  bru.setEnvVar("userToken", res.body.token);
+}

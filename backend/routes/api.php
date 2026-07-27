@@ -1,7 +1,30 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CinemaController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+
+Route::get('/generos', [CinemaController::class, 'generos']);
+Route::get('/peliculas', [CinemaController::class, 'peliculas']);
+Route::get('/peliculas/{pelicula}', [CinemaController::class, 'pelicula']);
+Route::middleware('auth:sanctum')->post('/peliculas/{pelicula}/resenas', [CinemaController::class, 'storeResena']);
+Route::middleware('auth:sanctum')->get('/favoritos', [CinemaController::class, 'favoritos']);
+Route::middleware('auth:sanctum')->post('/peliculas/{pelicula}/favorito', [CinemaController::class, 'toggleFavorito']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->get('/admin/resumen', [CinemaController::class, 'adminResumen']);
+Route::middleware(['auth:sanctum', 'role:Administrador,Moderador'])->get('/moderador/resumen', [CinemaController::class, 'moderadorResumen']);
+Route::middleware(['auth:sanctum', 'role:Administrador,Moderador'])->delete('/moderador/resenas/{resena}', [CinemaController::class, 'destroyResena']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->post('/admin/peliculas', [CinemaController::class, 'storePelicula']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->put('/admin/peliculas/{pelicula}', [CinemaController::class, 'updatePelicula']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->delete('/admin/peliculas/{pelicula}', [CinemaController::class, 'destroyPelicula']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->post('/admin/generos', [CinemaController::class, 'storeGenero']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->put('/admin/generos/{genero}', [CinemaController::class, 'updateGenero']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->delete('/admin/generos/{genero}', [CinemaController::class, 'destroyGenero']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->delete('/admin/resenas/{resena}', [CinemaController::class, 'destroyResena']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->put('/admin/users/{user}/role', [CinemaController::class, 'updateUserRole']);

@@ -2,23 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', Password::min(8)->mixedCase()->numbers()->symbols()],
-        ]);
+        $validated = $request->validated();
 
         $role = Role::where('nombre', 'Cinefilo')->firstOrFail();
 
@@ -31,16 +33,14 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Cuenta creada correctamente.',
-            'user' => $this->userPayload($user),
+            'user' => UserResource::make($user),
+            'token' => $user->createToken('frontend')->plainTextToken,
         ], 201);
     }
 
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $user = User::with('role')->where('email', $validated['email'])->first();
 
@@ -52,17 +52,65 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Inicio de sesion correcto.',
-            'user' => $this->userPayload($user),
+            'user' => UserResource::make($user),
+            'token' => $user->createToken('frontend')->plainTextToken,
         ]);
     }
 
-    private function userPayload(User $user): array
+    public function me(Request $request): JsonResponse
     {
-        return [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role?->nombre,
-        ];
+        return response()->json([
+            'user' => UserResource::make($request->user()->load('role')),
+        ]);
     }
+
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->currentAccessToken()?->delete();
+
+        return response()->json([
+            'message' => 'Sesion cerrada correctamente.',
+        ]);
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        $status = Password::sendResetLink($request->validated());
+
+        if ($status !== Password::RESET_LINK_SENT) {
+            return response()->json([
+                'message' => 'No se pudo enviar el enlace de recuperacion.',
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Enlace de recuperacion enviado. En local se escribe en storage/logs/laravel.log.',
+        ]);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $status = Password::reset(
+            $request->validated(),
+            function (User $user, string $password): void {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                $user->tokens()->delete();
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return response()->json([
+                'message' => 'El token de recuperacion no es valido o expiro.',
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Contrasena actualizada correctamente.',
+        ]);
+    }
+
 }

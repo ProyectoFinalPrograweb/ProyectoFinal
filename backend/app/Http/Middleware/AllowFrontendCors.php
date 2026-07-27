@@ -10,8 +10,11 @@ class AllowFrontendCors
 {
     public function handle(Request $request, Closure $next): Response
     {
+        $allowedOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173'];
+        $origin = $request->headers->get('Origin', 'http://127.0.0.1:5173');
+
         $headers = [
-            'Access-Control-Allow-Origin' => 'http://127.0.0.1:5173',
+            'Access-Control-Allow-Origin' => in_array($origin, $allowedOrigins, true) ? $origin : 'http://127.0.0.1:5173',
             'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
             'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With, Accept',
         ];

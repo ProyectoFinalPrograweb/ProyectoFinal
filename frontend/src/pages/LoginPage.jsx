@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { saveSession } from '../services/api';
 import './LoginPage.css';
 
 const API_URL = 'http://127.0.0.1:8000/api';
@@ -14,6 +15,7 @@ export default function LoginPage() {
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [regData, setRegData] = useState({ nombre: '', email: '', password: '' });
+  const [forgotData, setForgotData] = useState({ email: '' });
 
   const passwordRules = [
     { label: 'Minimo 8 caracteres', valid: regData.password.length >= 8 },
@@ -53,7 +55,7 @@ export default function LoginPage() {
 
     try {
       const data = await requestJson('/login', loginData);
-      localStorage.setItem('cinema_ito_user', JSON.stringify(data.user));
+      saveSession(data.user, data.token);
       setFormMessage({ type: 'success', text: data.message });
       navigate('/');
     } catch (error) {
@@ -76,9 +78,26 @@ export default function LoginPage() {
         email: regData.email,
         password: regData.password,
       });
-      localStorage.setItem('cinema_ito_user', JSON.stringify(data.user));
+      saveSession(data.user, data.token);
       setFormMessage({ type: 'success', text: data.message });
       navigate('/');
+    } catch (error) {
+      setFieldErrors(error.errors || {});
+      setFormMessage({ type: 'error', text: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async e => {
+    e.preventDefault();
+    setLoading(true);
+    setFormMessage(null);
+    setFieldErrors({});
+
+    try {
+      const data = await requestJson('/forgot-password', forgotData);
+      setFormMessage({ type: 'success', text: data.message });
     } catch (error) {
       setFieldErrors(error.errors || {});
       setFormMessage({ type: 'error', text: error.message });
@@ -164,7 +183,7 @@ export default function LoginPage() {
               <div className="form-group">
                 <div className="form-label-row">
                   <label className="form-label">Contrasena</label>
-                  <a href="#" className="forgot-link">Olvidaste tu contrasena?</a>
+                  <button type="button" className="forgot-link" onClick={() => switchTab('forgot')}>Olvidaste tu contrasena?</button>
                 </div>
                 <div className="input-icon-wrap">
                   <span className="icon">*</span>
@@ -202,6 +221,42 @@ export default function LoginPage() {
                   <span>f</span> Facebook
                 </button>
               </div>
+            </form>
+          )}
+
+          {tab === 'forgot' && (
+            <form className="login-form animate-fade-in" onSubmit={handleForgotPassword}>
+              <div className="login-greeting">
+                <h2>Recuperar contrasena</h2>
+                <p>Escribe tu correo y te enviaremos un enlace de recuperacion.</p>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Correo electronico</label>
+                <div className="input-icon-wrap">
+                  <span className="icon">@</span>
+                  <input
+                    id="forgot-email"
+                    type="email"
+                    className="form-input"
+                    placeholder="tu@correo.com"
+                    value={forgotData.email}
+                    onChange={e => setForgotData({ email: e.target.value })}
+                    required
+                  />
+                </div>
+                {firstError('email') && <p className="field-error">{firstError('email')}</p>}
+              </div>
+
+              {formMessage && <p className={`form-message ${formMessage.type}`}>{formMessage.text}</p>}
+
+              <button type="submit" className="btn btn-primary login-submit-btn" disabled={loading}>
+                {loading ? 'Enviando...' : 'Enviar enlace'}
+              </button>
+
+              <button type="button" className="btn btn-outline login-submit-btn" onClick={() => switchTab('login')}>
+                Volver al login
+              </button>
             </form>
           )}
 

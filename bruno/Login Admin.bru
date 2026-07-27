@@ -1,0 +1,27 @@
+meta {
+  name: Login Admin
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "admin@cinemaito.com",
+    "password": "Admin123!"
+  }
+}
+
+script:post-response {
+  bru.setEnvVar("token", res.body.token);
+}

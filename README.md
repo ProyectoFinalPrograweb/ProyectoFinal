@@ -1,5 +1,7 @@
 # Cinema ITO
 
+> Estado actual: Laravel + React + MySQL local, con Sanctum, roles, rutas protegidas, Form Requests, API Resources, panel Admin, panel Moderador, Bruno y respaldo SQL.
+
 ## Integrantes
 
 - Valencia Borja Omar Rutilio
@@ -263,3 +265,153 @@ El tablero debera configurarse con las siguientes columnas:
 8. Implementar listado de favoritos por usuario.
 9. Implementar busqueda de peliculas.
 10. Probar funcionalidades principales del sistema.
+
+## Tecnologias utilizadas
+
+- Backend: Laravel 12, Laravel Sanctum, PHP 8.2+
+- Frontend: React, Vite, React Router
+- Base de datos: MySQL
+- Pruebas de API: Bruno
+- Estilos: CSS modular por pagina/componente
+
+## Instalacion y ejecucion local
+
+Backend:
+
+```bash
+cd backend
+php composer.phar install
+copy .env.example .env
+php artisan key:generate
+php artisan migrate:fresh --seed
+php artisan serve
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm.cmd install
+npm.cmd run dev
+```
+
+URLs locales:
+
+```text
+Frontend: http://127.0.0.1:5173
+API: http://127.0.0.1:8000/api
+```
+
+## API documentada
+
+Publicas:
+
+```text
+POST /api/register
+POST /api/login
+POST /api/forgot-password
+POST /api/reset-password
+GET  /api/generos
+GET  /api/peliculas
+GET  /api/peliculas/{id}
+```
+
+Protegidas con Sanctum:
+
+```text
+GET    /api/me
+POST   /api/logout
+GET    /api/favoritos
+POST   /api/peliculas/{id}/favorito
+POST   /api/peliculas/{id}/resenas
+```
+
+Administrador:
+
+```text
+GET    /api/admin/resumen
+POST   /api/admin/peliculas
+PUT    /api/admin/peliculas/{id}
+DELETE /api/admin/peliculas/{id}
+POST   /api/admin/generos
+PUT    /api/admin/generos/{id}
+DELETE /api/admin/generos/{id}
+DELETE /api/admin/resenas/{id}
+PUT    /api/admin/users/{id}/role
+```
+
+Moderador:
+
+```text
+GET    /api/moderador/resumen
+DELETE /api/moderador/resenas/{id}
+```
+
+## Bruno
+
+La coleccion de Bruno esta versionada en:
+
+```text
+bruno/
+```
+
+Incluye pruebas de:
+
+- Login y obtencion del token.
+- Uso del token en endpoint protegido.
+- Error 403 por rol incorrecto.
+- Error 422 por datos invalidos.
+- Error 404 por recurso inexistente.
+- Recuperacion de contrasena.
+
+## Diagrama ER
+
+```mermaid
+erDiagram
+    roles ||--o{ users : asigna
+    users ||--o{ peliculas : publica
+    generos ||--o{ peliculas : clasifica
+    users ||--o{ resenas : escribe
+    peliculas ||--o{ resenas : recibe
+    users ||--o{ favoritos : guarda
+    peliculas ||--o{ favoritos : aparece_en
+```
+
+## Figma
+
+Pendiente pegar el link real del prototipo navegable:
+
+```text
+URL FIGMA: PENDIENTE
+```
+
+Debe incluir pantallas por rol, paleta justificada y logo original.
+
+## VPS
+
+Pendiente para entrega final:
+
+```text
+URL PROYECTO HTTPS: PENDIENTE
+URL BASE API HTTPS: PENDIENTE
+```
+
+Checklist VPS:
+
+- Clonar repositorio.
+- Configurar `.env` real.
+- Instalar dependencias de Laravel.
+- Instalar y compilar frontend.
+- Ejecutar migraciones y seeders.
+- Configurar Nginx como proxy reverso.
+- Configurar HTTPS con Certbot.
+- Configurar correo real con Postfix, SPF y DKIM.
+- Configurar SMS y WhatsApp con variables reales.
+
+## Comunicacion real pendiente
+
+- Correo real desde VPS con Postfix.
+- SMS desde una API como Twilio.
+- WhatsApp desde Twilio o WhatsApp Cloud API.
+
+Las variables sensibles deben ir en `.env` y nunca subirse al repositorio.

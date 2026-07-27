@@ -1,0 +1,24 @@
+meta {
+  name: Error 422 Registro Invalido
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/register
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Prueba Error",
+    "email": "correo-no-valido",
+    "password": "123"
+  }
+}

@@ -89,6 +89,16 @@
   gap: var(--spacing-lg);
 }
 
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
 @media (max-width: 600px) {
   .explorar-controls { flex-direction: column; }
   .explorar-select   { width: 100%; }

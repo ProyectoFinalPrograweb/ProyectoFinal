@@ -1,0 +1,15 @@
+meta {
+  name: Error 404 Pelicula No Existe
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/peliculas/999999
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

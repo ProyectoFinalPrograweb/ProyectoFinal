@@ -1,0 +1,19 @@
+meta {
+  name: Admin Resumen Protegido
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/admin/resumen
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+}

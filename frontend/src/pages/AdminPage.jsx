@@ -1,214 +1,197 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
-import { peliculas, resenas, usuarioActual, generos } from '../data/mockData';
+import { apiRequest, getCurrentUser } from '../services/api';
 import './AdminPage.css';
 
-const TABS = ['Películas', 'Usuarios', 'Reseñas', 'Géneros'];
-
-const usuariosDemo = [
-  { id: 1, nombre: 'Angel Gabriel', email: 'angel@ito.mx', rol: 'Cinéfilo', peliculas: 47, activo: true },
-  { id: 2, nombre: 'Valeria M.',    email: 'valeria@ito.mx', rol: 'Cinéfilo', peliculas: 23, activo: true },
-  { id: 3, nombre: 'Carlos R.',    email: 'carlos@ito.mx', rol: 'Productor', peliculas: 5,  activo: false },
-  { id: 4, nombre: 'Sofía L.',     email: 'sofia@ito.mx', rol: 'Cinéfilo', peliculas: 61, activo: true },
-];
+const TABS = ['Peliculas', 'Usuarios', 'Resenas', 'Generos'];
+const emptyMovie = { titulo: '', director: '', anio: new Date().getFullYear(), sinopsis: '', imagen: '', genero_id: '' };
+const emptyGenre = { nombre: '', descripcion: '' };
 
 export default function AdminPage() {
-  const [tab, setTab] = useState('Películas');
+  const [tab, setTab] = useState('Peliculas');
   const [search, setSearch] = useState('');
+  const [data, setData] = useState({ peliculas: [], usuarios: [], resenas: [], generos: [], roles: [] });
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(null);
+  const [message, setMessage] = useState(null);
+  const user = getCurrentUser();
+
+  const loadData = () => {
+    setLoading(true);
+    apiRequest('/admin/resumen')
+      .then(response => setData(response.data || data))
+      .catch(error => setMessage({ type: 'error', text: error.message }))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const openMovieModal = pelicula => setModal({ type: 'movie', item: pelicula ? { ...pelicula } : { ...emptyMovie } });
+  const openGenreModal = genero => setModal({ type: 'genre', item: genero ? { ...genero } : { ...emptyGenre } });
+  const openRoleModal = usuario => setModal({ type: 'role', item: { ...usuario, role_id: usuario.role_id || '' } });
+  const openDeleteModal = (entity, item) => setModal({ type: 'delete', entity, item });
+
+  const closeModal = () => setModal(null);
+
+  const submitMovie = async e => {
+    e.preventDefault();
+    const isEdit = Boolean(modal.item.id);
+    const body = {
+      titulo: modal.item.titulo,
+      director: modal.item.director,
+      anio: Number(modal.item.anio),
+      sinopsis: modal.item.sinopsis,
+      imagen: modal.item.imagen || null,
+      genero_id: Number(modal.item.genero_id),
+    };
+
+    const response = await apiRequest(isEdit ? `/admin/peliculas/${modal.item.id}` : '/admin/peliculas', {
+      method: isEdit ? 'PUT' : 'POST',
+      body: JSON.stringify(body),
+    });
+    setMessage({ type: 'success', text: response.message });
+    closeModal();
+    loadData();
+  };
+
+  const submitGenre = async e => {
+    e.preventDefault();
+    const isEdit = Boolean(modal.item.id);
+    const response = await apiRequest(isEdit ? `/admin/generos/${modal.item.id}` : '/admin/generos', {
+      method: isEdit ? 'PUT' : 'POST',
+      body: JSON.stringify({
+        nombre: modal.item.nombre,
+        descripcion: modal.item.descripcion || null,
+      }),
+    });
+    setMessage({ type: 'success', text: response.message });
+    closeModal();
+    loadData();
+  };
+
+  const submitRole = async e => {
+    e.preventDefault();
+    const response = await apiRequest(`/admin/users/${modal.item.id}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role_id: Number(modal.item.role_id) }),
+    });
+    setMessage({ type: 'success', text: response.message });
+    closeModal();
+    loadData();
+  };
+
+  const confirmDelete = async () => {
+    const paths = {
+      pelicula: `/admin/peliculas/${modal.item.id}`,
+      genero: `/admin/generos/${modal.item.id}`,
+      resena: `/admin/resenas/${modal.item.id}`,
+    };
+    const response = await apiRequest(paths[modal.entity], { method: 'DELETE' });
+    setMessage({ type: 'success', text: response.message });
+    closeModal();
+    loadData();
+  };
+
+  const filteredPeliculas = data.peliculas.filter(p => p.titulo.toLowerCase().includes(search.toLowerCase()));
+  const filteredUsuarios = data.usuarios.filter(u => u.nombre.toLowerCase().includes(search.toLowerCase()));
+  const filteredResenas = data.resenas.filter(r => r.comentario.toLowerCase().includes(search.toLowerCase()));
+  const filteredGeneros = data.generos.filter(g => g.nombre.toLowerCase().includes(search.toLowerCase()));
+
+  const updateModalItem = changes => setModal(current => ({ ...current, item: { ...current.item, ...changes } }));
 
   return (
     <div className="page-wrapper">
       <main className="admin-page container">
-
-        {/* Header */}
         <div className="admin-header animate-fade-in">
           <div>
-            <h1>Panel de Administración</h1>
-            <p>Gestiona el contenido y los usuarios de Cinema ITO.</p>
+            <h1>Panel de Administracion</h1>
+            <p>CRUD real protegido por rol Administrador.</p>
           </div>
           <div className="admin-user-badge">
-            <div className="admin-avatar">{usuarioActual.avatar}</div>
+            <div className="admin-avatar">{(user?.name || 'AD').slice(0, 2).toUpperCase()}</div>
             <div>
-              <span className="admin-name">{usuarioActual.nombre}</span>
-              <span className="admin-role badge badge-primary">Administrador</span>
+              <span className="admin-name">{user?.name || 'Administrador'}</span>
+              <span className="admin-role badge badge-primary">{user?.role || 'Administrador'}</span>
             </div>
           </div>
         </div>
 
-        {/* Stats globales */}
+        {message && <p className={`form-message ${message.type}`}>{message.text}</p>}
+
         <div className="admin-stats animate-fade-in delay-100">
-          <div className="admin-stat-card">
-            <span className="admin-stat-icon">🎬</span>
-            <div>
-              <span className="admin-stat-num">{peliculas.length}</span>
-              <span className="admin-stat-label">Películas</span>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <span className="admin-stat-icon">👤</span>
-            <div>
-              <span className="admin-stat-num">{usuariosDemo.length}</span>
-              <span className="admin-stat-label">Usuarios</span>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <span className="admin-stat-icon">💬</span>
-            <div>
-              <span className="admin-stat-num">{resenas.length}</span>
-              <span className="admin-stat-label">Reseñas</span>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <span className="admin-stat-icon">🎭</span>
-            <div>
-              <span className="admin-stat-num">{generos.length}</span>
-              <span className="admin-stat-label">Géneros</span>
-            </div>
-          </div>
+          <div className="admin-stat-card"><span className="admin-stat-icon">P</span><div><span className="admin-stat-num">{data.peliculas.length}</span><span className="admin-stat-label">Peliculas</span></div></div>
+          <div className="admin-stat-card"><span className="admin-stat-icon">U</span><div><span className="admin-stat-num">{data.usuarios.length}</span><span className="admin-stat-label">Usuarios</span></div></div>
+          <div className="admin-stat-card"><span className="admin-stat-icon">R</span><div><span className="admin-stat-num">{data.resenas.length}</span><span className="admin-stat-label">Resenas</span></div></div>
+          <div className="admin-stat-card"><span className="admin-stat-icon">G</span><div><span className="admin-stat-num">{data.generos.length}</span><span className="admin-stat-label">Generos</span></div></div>
         </div>
 
-        {/* Tabs */}
         <div className="admin-tabs animate-fade-in delay-200">
-          {TABS.map(t => (
-            <button
-              key={t}
-              className={`admin-tab ${tab === t ? 'active' : ''}`}
-              onClick={() => setTab(t)}
-            >
-              {t}
-            </button>
-          ))}
+          {TABS.map(t => <button key={t} className={`admin-tab ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>{t}</button>)}
         </div>
 
-        {/* Búsqueda + Acción */}
         <div className="admin-toolbar animate-fade-in delay-300">
           <div className="admin-search input-icon-wrap">
-            <span className="icon">🔍</span>
-            <input
-              type="text"
-              className="form-input"
-              placeholder={`Buscar en ${tab.toLowerCase()}...`}
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+            <span className="icon">@</span>
+            <input type="text" className="form-input" placeholder={`Buscar en ${tab.toLowerCase()}...`} value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          <button className="btn btn-primary">
-            + Agregar {tab.slice(0, -1)}
-          </button>
+          {tab === 'Peliculas' && <button className="btn btn-primary" onClick={() => openMovieModal()}>+ Agregar Pelicula</button>}
+          {tab === 'Generos' && <button className="btn btn-primary" onClick={() => openGenreModal()}>+ Agregar Genero</button>}
         </div>
 
-        {/* ---- PELÍCULAS ---- */}
-        {tab === 'Películas' && (
+        {loading && <p>Cargando datos administrativos...</p>}
+
+        {!loading && tab === 'Peliculas' && (
           <div className="admin-table-wrap animate-fade-in">
             <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Película</th>
-                  <th>Director</th>
-                  <th>Año</th>
-                  <th>Género</th>
-                  <th>Calificación</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Pelicula</th><th>Director</th><th>Anio</th><th>Genero</th><th>Calificacion</th><th>Acciones</th></tr></thead>
               <tbody>
-                {peliculas
-                  .filter(p => p.titulo.toLowerCase().includes(search.toLowerCase()))
-                  .map(p => {
-                    const gen = generos.find(g => g.id === p.genero_id);
-                    return (
-                      <tr key={p.id}>
-                        <td>
-                          <div className="admin-movie-cell">
-                            <img
-                              src={p.imagen}
-                              alt={p.titulo}
-                              className="admin-movie-thumb"
-                              onError={e => { e.target.src = '/movie_posters.png'; }}
-                            />
-                            <span className="admin-movie-title">{p.titulo}</span>
-                          </div>
-                        </td>
-                        <td><span className="table-text">{p.director}</span></td>
-                        <td><span className="table-text">{p.anio}</span></td>
-                        <td>{gen && <span className="badge badge-dark">{gen.nombre}</span>}</td>
-                        <td><span className="rating-badge">{p.calificacion_promedio}</span></td>
-                        <td>
-                          <div className="admin-actions">
-                            <button className="admin-action-btn edit">✏ Editar</button>
-                            <button className="admin-action-btn delete">🗑 Eliminar</button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                {filteredPeliculas.map(p => (
+                  <tr key={p.id}>
+                    <td><div className="admin-movie-cell"><img src={p.imagen} alt={p.titulo} className="admin-movie-thumb" onError={e => { e.target.src = '/movie_posters.png'; }} /><span className="admin-movie-title">{p.titulo}</span></div></td>
+                    <td><span className="table-text">{p.director}</span></td>
+                    <td><span className="table-text">{p.anio}</span></td>
+                    <td><span className="badge badge-dark">{p.genero}</span></td>
+                    <td><span className="rating-badge">{p.calificacion_promedio}</span></td>
+                    <td><div className="admin-actions"><button className="admin-action-btn edit" onClick={() => openMovieModal(p)}>Editar</button><button className="admin-action-btn delete" onClick={() => openDeleteModal('pelicula', p)}>Eliminar</button></div></td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         )}
 
-        {/* ---- USUARIOS ---- */}
-        {tab === 'Usuarios' && (
+        {!loading && tab === 'Usuarios' && (
           <div className="admin-table-wrap animate-fade-in">
             <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Usuario</th>
-                  <th>Email</th>
-                  <th>Rol</th>
-                  <th>Películas</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Peliculas</th><th>Estado</th><th>Acciones</th></tr></thead>
               <tbody>
-                {usuariosDemo
-                  .filter(u => u.nombre.toLowerCase().includes(search.toLowerCase()))
-                  .map(u => (
-                    <tr key={u.id}>
-                      <td>
-                        <div className="admin-user-cell">
-                          <div className="admin-user-avatar">{u.nombre.slice(0,2).toUpperCase()}</div>
-                          <span className="admin-movie-title">{u.nombre}</span>
-                        </div>
-                      </td>
-                      <td><span className="table-text">{u.email}</span></td>
-                      <td><span className="badge badge-primary">{u.rol}</span></td>
-                      <td><span className="table-text">{u.peliculas}</span></td>
-                      <td>
-                        <span className={`estado-badge ${u.activo ? 'activo' : 'inactivo'}`}>
-                          {u.activo ? '● Activo' : '○ Inactivo'}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="admin-actions">
-                          <button className="admin-action-btn edit">✏ Editar</button>
-                          <button className="admin-action-btn delete">🚫 Suspender</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                {filteredUsuarios.map(u => (
+                  <tr key={u.id}>
+                    <td><div className="admin-user-cell"><div className="admin-user-avatar">{u.nombre.slice(0, 2).toUpperCase()}</div><span className="admin-movie-title">{u.nombre}</span></div></td>
+                    <td><span className="table-text">{u.email}</span></td>
+                    <td><span className="badge badge-primary">{u.rol}</span></td>
+                    <td><span className="table-text">{u.peliculas}</span></td>
+                    <td><span className="estado-badge activo">Activo</span></td>
+                    <td><div className="admin-actions"><button className="admin-action-btn edit" onClick={() => openRoleModal(u)}>Cambiar rol</button></div></td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         )}
 
-        {/* ---- RESEÑAS ---- */}
-        {tab === 'Reseñas' && (
+        {!loading && tab === 'Resenas' && (
           <div className="admin-resenas animate-fade-in">
-            {resenas.map(r => (
+            {filteredResenas.map(r => (
               <div key={r.id} className="admin-resena-card">
                 <div className="admin-resena-header">
                   <div className="admin-resena-user">
                     <div className="admin-user-avatar sm">{r.usuario.avatar}</div>
-                    <div>
-                      <span className="admin-movie-title">{r.usuario.nombre}</span>
-                      <span className="table-text"> en Cempasúchil · {r.fecha}</span>
-                    </div>
+                    <div><span className="admin-movie-title">{r.usuario.nombre}</span><span className="table-text"> en {r.pelicula_titulo} - {r.fecha}</span></div>
                   </div>
-                  <div className="admin-actions">
-                    <button className="admin-action-btn delete">🗑 Eliminar</button>
-                  </div>
+                  <div className="admin-actions"><button className="admin-action-btn delete" onClick={() => openDeleteModal('resena', r)}>Eliminar</button></div>
                 </div>
                 <p className="admin-resena-texto">{r.comentario}</p>
               </div>
@@ -216,25 +199,68 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* ---- GÉNEROS ---- */}
-        {tab === 'Géneros' && (
+        {!loading && tab === 'Generos' && (
           <div className="admin-generos animate-fade-in">
-            {generos.map(g => (
+            {filteredGeneros.map(g => (
               <div key={g.id} className="admin-genero-card">
-                <div>
-                  <h4>{g.nombre}</h4>
-                  <p>{peliculas.filter(p => p.genero_id === g.id).length} películas</p>
-                </div>
-                <div className="admin-actions">
-                  <button className="admin-action-btn edit">✏ Editar</button>
-                  <button className="admin-action-btn delete">🗑 Eliminar</button>
-                </div>
+                <div><h4>{g.nombre}</h4><p>{g.peliculas_count} peliculas</p></div>
+                <div className="admin-actions"><button className="admin-action-btn edit" onClick={() => openGenreModal(g)}>Editar</button><button className="admin-action-btn delete" onClick={() => openDeleteModal('genero', g)}>Eliminar</button></div>
               </div>
             ))}
           </div>
         )}
-
       </main>
+
+      {modal && (
+        <div className="admin-modal-backdrop">
+          <div className="admin-modal">
+            {modal.type === 'movie' && (
+              <form onSubmit={submitMovie} className="admin-modal-form">
+                <h3>{modal.item.id ? 'Editar pelicula' : 'Agregar pelicula'}</h3>
+                <input className="form-input" placeholder="Titulo" value={modal.item.titulo} onChange={e => updateModalItem({ titulo: e.target.value })} required />
+                <input className="form-input" placeholder="Director" value={modal.item.director} onChange={e => updateModalItem({ director: e.target.value })} required />
+                <input className="form-input" type="number" placeholder="Anio" value={modal.item.anio} onChange={e => updateModalItem({ anio: e.target.value })} required />
+                <select className="form-input" value={modal.item.genero_id} onChange={e => updateModalItem({ genero_id: e.target.value })} required>
+                  <option value="">Selecciona genero</option>
+                  {data.generos.map(g => <option key={g.id} value={g.id}>{g.nombre}</option>)}
+                </select>
+                <input className="form-input" placeholder="URL de imagen opcional" value={modal.item.imagen || ''} onChange={e => updateModalItem({ imagen: e.target.value })} />
+                <textarea className="form-input" placeholder="Sinopsis" value={modal.item.sinopsis} onChange={e => updateModalItem({ sinopsis: e.target.value })} rows={4} required />
+                <div className="admin-modal-actions"><button type="button" className="btn btn-outline" onClick={closeModal}>Cancelar</button><button className="btn btn-primary" type="submit">Guardar</button></div>
+              </form>
+            )}
+
+            {modal.type === 'genre' && (
+              <form onSubmit={submitGenre} className="admin-modal-form">
+                <h3>{modal.item.id ? 'Editar genero' : 'Agregar genero'}</h3>
+                <input className="form-input" placeholder="Nombre" value={modal.item.nombre} onChange={e => updateModalItem({ nombre: e.target.value })} required />
+                <input className="form-input" placeholder="Descripcion" value={modal.item.descripcion || ''} onChange={e => updateModalItem({ descripcion: e.target.value })} />
+                <div className="admin-modal-actions"><button type="button" className="btn btn-outline" onClick={closeModal}>Cancelar</button><button className="btn btn-primary" type="submit">Guardar</button></div>
+              </form>
+            )}
+
+            {modal.type === 'role' && (
+              <form onSubmit={submitRole} className="admin-modal-form">
+                <h3>Cambiar rol de {modal.item.nombre}</h3>
+                <select className="form-input" value={modal.item.role_id} onChange={e => updateModalItem({ role_id: e.target.value })} required>
+                  <option value="">Selecciona rol</option>
+                  {data.roles.map(role => <option key={role.id} value={role.id}>{role.nombre}</option>)}
+                </select>
+                <div className="admin-modal-actions"><button type="button" className="btn btn-outline" onClick={closeModal}>Cancelar</button><button className="btn btn-primary" type="submit">Guardar</button></div>
+              </form>
+            )}
+
+            {modal.type === 'delete' && (
+              <div className="admin-modal-form">
+                <h3>Confirmar eliminacion</h3>
+                <p>Esta accion eliminara el registro seleccionado. No se usa confirm nativo.</p>
+                <div className="admin-modal-actions"><button type="button" className="btn btn-outline" onClick={closeModal}>Cancelar</button><button type="button" className="btn btn-primary" onClick={confirmDelete}>Eliminar</button></div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
