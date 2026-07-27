@@ -6,5 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Favorito extends Model
 {
-    //
+    protected $fillable = ['usuario_id', 'pelicula_id'];
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
+    public function pelicula()
+    {
+        return $this->belongsTo(Pelicula::class);
+    }
 }

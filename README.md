@@ -169,6 +169,51 @@ peliculas 1 --- N resenas
 usuarios N --- N peliculas mediante favoritos
 ```
 
+## Base de datos local
+
+Motor requerido: MySQL.
+
+Nombre de la base de datos:
+
+```text
+cine_ito
+```
+
+Primero crear la base `cine_ito` en phpMyAdmin o importar directamente `backend/database/cine_ito_backup.sql`.
+
+Configuracion sugerida en `backend/.env`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=cine_ito
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Para crear las tablas y cargar datos de prueba desde Laravel:
+
+```bash
+cd backend
+php artisan migrate --seed
+```
+
+Tambien se incluye el respaldo SQL en:
+
+```text
+backend/database/cine_ito_backup.sql
+```
+
+Credenciales de prueba:
+
+| Rol | Correo | Contrasena |
+| --- | --- | --- |
+| Administrador | admin@cinemaito.com | Admin123! |
+| Moderador | mod@cinemaito.com | Moderador123! |
+| Cinefilo | user@cinemaito.com | Usuario123! |
+| Developer/Evaluador | developer@cinemaito.com | Developer123! |
+
 ## Repositorio
 
 Repositorio de GitHub:
@@ -182,8 +227,6 @@ https://github.com/ProyectoFinalPrograweb/ProyectoFinal
 Tablero de GitHub Projects:
 
 https://github.com/orgs/ProyectoFinalPrograweb/projects/1/views/1
-
-```
 
 El tablero debera configurarse con las siguientes columnas:
 

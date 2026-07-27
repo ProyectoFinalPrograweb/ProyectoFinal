@@ -6,28 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
-{
-    Schema::create('peliculas', function (Blueprint $table) {
-        $table->id();
-        $table->string('titulo');
-        $table->string('director');
-        $table->integer('anio');
-        $table->text('sinopsis');
-        $table->string('imagen')->nullable();
-        // Llaves foráneas
-        $table->foreignId('genero_id')->constrained('generos')->onDelete('cascade');
-        $table->foreignId('usuario_id')->constrained('users')->onDelete('cascade'); // Usuario que la publicó
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('peliculas', function (Blueprint $table) {
+            $table->id();
+            $table->string('titulo');
+            $table->string('director');
+            $table->unsignedSmallInteger('anio');
+            $table->text('sinopsis');
+            $table->string('imagen')->nullable();
+            $table->foreignId('genero_id')->constrained('generos')->cascadeOnDelete();
+            $table->foreignId('usuario_id')->constrained('users')->cascadeOnDelete();
+            $table->timestamps();
+        });
+    }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('peliculas');

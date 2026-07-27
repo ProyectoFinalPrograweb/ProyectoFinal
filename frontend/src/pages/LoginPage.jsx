@@ -1,47 +1,115 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
+const API_URL = 'http://127.0.0.1:8000/api';
+
 export default function LoginPage() {
-  const [tab, setTab] = useState('login'); // 'login' | 'register'
+  const navigate = useNavigate();
+  const [tab, setTab] = useState('login');
   const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formMessage, setFormMessage] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [regData, setRegData] = useState({ nombre: '', email: '', password: '', rol: 'cinefilo' });
+  const [regData, setRegData] = useState({ nombre: '', email: '', password: '' });
 
-  const handleLogin = e => {
-    e.preventDefault();
-    alert('Login conectado al backend próximamente 🎬');
+  const passwordRules = [
+    { label: 'Minimo 8 caracteres', valid: regData.password.length >= 8 },
+    { label: 'Una mayuscula', valid: /[A-Z]/.test(regData.password) },
+    { label: 'Un numero', valid: /\d/.test(regData.password) },
+    { label: 'Un caracter especial', valid: /[^A-Za-z0-9]/.test(regData.password) },
+  ];
+
+  const firstError = name => fieldErrors[name]?.[0];
+
+  const requestJson = async (path, body) => {
+    const response = await fetch(`${API_URL}${path}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const error = new Error(data.message || 'No se pudo completar la solicitud.');
+      error.errors = data.errors || {};
+      throw error;
+    }
+
+    return data;
   };
 
-  const handleRegister = e => {
+  const handleLogin = async e => {
     e.preventDefault();
-    alert('Registro conectado al backend próximamente 🎬');
+    setLoading(true);
+    setFormMessage(null);
+    setFieldErrors({});
+
+    try {
+      const data = await requestJson('/login', loginData);
+      localStorage.setItem('cinema_ito_user', JSON.stringify(data.user));
+      setFormMessage({ type: 'success', text: data.message });
+      navigate('/');
+    } catch (error) {
+      setFieldErrors(error.errors || {});
+      setFormMessage({ type: 'error', text: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async e => {
+    e.preventDefault();
+    setLoading(true);
+    setFormMessage(null);
+    setFieldErrors({});
+
+    try {
+      const data = await requestJson('/register', {
+        name: regData.nombre,
+        email: regData.email,
+        password: regData.password,
+      });
+      localStorage.setItem('cinema_ito_user', JSON.stringify(data.user));
+      setFormMessage({ type: 'success', text: data.message });
+      navigate('/');
+    } catch (error) {
+      setFieldErrors(error.errors || {});
+      setFormMessage({ type: 'error', text: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const switchTab = nextTab => {
+    setTab(nextTab);
+    setFormMessage(null);
+    setFieldErrors({});
   };
 
   return (
     <div className="login-page">
-      {/* Panel izquierdo — visual */}
       <div className="login-visual">
-        <img
-          src="/hero_banner.png"
-          alt="Cinema ITO"
-          className="login-bg-img"
-        />
+        <img src="/hero_banner.png" alt="Cinema ITO" className="login-bg-img" />
         <div className="login-visual-overlay" />
 
         <div className="login-visual-content">
           <Link to="/" className="login-logo">
-            🎬 Cinema <span>ITO</span>
+            Cinema <span>ITO</span>
           </Link>
           <div className="login-tagline">
             <h1>Celebrando el Cine Mexicano</h1>
-            <p>Descubre, celebra y comparte la magia del cine mexicano. Tu comunidad universitaria cinéfila.</p>
+            <p>Descubre, celebra y comparte la magia del cine mexicano. Tu comunidad universitaria cinefila.</p>
           </div>
 
-          {/* Géneros flotantes */}
           <div className="login-genre-pills">
-            {['Drama', 'Thriller', 'Comedia', 'Terror', 'Documental', 'Animación'].map((g, i) => (
+            {['Drama', 'Thriller', 'Comedia', 'Terror', 'Documental', 'Animacion'].map((g, i) => (
               <span key={g} className="genre-pill" style={{ animationDelay: `${i * 0.1}s` }}>
                 {g}
               </span>
@@ -50,27 +118,25 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Panel derecho — formulario */}
       <div className="login-form-panel">
         <div className="login-form-container animate-scale-in">
-
-          {/* Tabs */}
           <div className="login-tabs">
             <button
+              type="button"
               className={`login-tab ${tab === 'login' ? 'active' : ''}`}
-              onClick={() => setTab('login')}
+              onClick={() => switchTab('login')}
             >
-              Iniciar Sesión
+              Iniciar Sesion
             </button>
             <button
+              type="button"
               className={`login-tab ${tab === 'register' ? 'active' : ''}`}
-              onClick={() => setTab('register')}
+              onClick={() => switchTab('register')}
             >
               Crear Cuenta
             </button>
           </div>
 
-          {/* ---- LOGIN ---- */}
           {tab === 'login' && (
             <form className="login-form animate-fade-in" onSubmit={handleLogin}>
               <div className="login-greeting">
@@ -79,9 +145,9 @@ export default function LoginPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Correo Electrónico</label>
+                <label className="form-label">Correo electronico</label>
                 <div className="input-icon-wrap">
-                  <span className="icon">✉</span>
+                  <span className="icon">@</span>
                   <input
                     id="login-email"
                     type="email"
@@ -92,36 +158,36 @@ export default function LoginPage() {
                     required
                   />
                 </div>
+                {firstError('email') && <p className="field-error">{firstError('email')}</p>}
               </div>
 
               <div className="form-group">
                 <div className="form-label-row">
-                  <label className="form-label">Contraseña</label>
-                  <a href="#" className="forgot-link">¿Olvidaste tu contraseña?</a>
+                  <label className="form-label">Contrasena</label>
+                  <a href="#" className="forgot-link">Olvidaste tu contrasena?</a>
                 </div>
                 <div className="input-icon-wrap">
-                  <span className="icon">🔒</span>
+                  <span className="icon">*</span>
                   <input
                     id="login-password"
                     type={showPass ? 'text' : 'password'}
                     className="form-input"
-                    placeholder="········"
+                    placeholder="Minimo 8 caracteres"
                     value={loginData.password}
                     onChange={e => setLoginData({ ...loginData, password: e.target.value })}
                     required
                   />
-                  <button
-                    type="button"
-                    className="show-pass-btn"
-                    onClick={() => setShowPass(!showPass)}
-                  >
-                    {showPass ? '🙈' : '👁'}
+                  <button type="button" className="show-pass-btn" onClick={() => setShowPass(!showPass)}>
+                    {showPass ? 'Ocultar' : 'Ver'}
                   </button>
                 </div>
+                {firstError('password') && <p className="field-error">{firstError('password')}</p>}
               </div>
 
-              <button type="submit" className="btn btn-primary login-submit-btn">
-                Entrar
+              {formMessage && <p className={`form-message ${formMessage.type}`}>{formMessage.text}</p>}
+
+              <button type="submit" className="btn btn-primary login-submit-btn" disabled={loading}>
+                {loading ? 'Entrando...' : 'Entrar'}
               </button>
 
               <div className="login-divider">
@@ -139,18 +205,17 @@ export default function LoginPage() {
             </form>
           )}
 
-          {/* ---- REGISTRO ---- */}
           {tab === 'register' && (
             <form className="login-form animate-fade-in" onSubmit={handleRegister}>
               <div className="login-greeting">
-                <h2>Únete a Cinema ITO</h2>
-                <p>Crea tu cuenta y forma parte de la comunidad cinéfila universitaria.</p>
+                <h2>Unete a Cinema ITO</h2>
+                <p>Crea tu cuenta y forma parte de la comunidad cinefila universitaria.</p>
               </div>
 
               <div className="form-group">
                 <label className="form-label">Nombre completo</label>
                 <div className="input-icon-wrap">
-                  <span className="icon">👤</span>
+                  <span className="icon">U</span>
                   <input
                     id="reg-nombre"
                     type="text"
@@ -161,12 +226,13 @@ export default function LoginPage() {
                     required
                   />
                 </div>
+                {firstError('name') && <p className="field-error">{firstError('name')}</p>}
               </div>
 
               <div className="form-group">
-                <label className="form-label">Correo Electrónico</label>
+                <label className="form-label">Correo electronico</label>
                 <div className="input-icon-wrap">
-                  <span className="icon">✉</span>
+                  <span className="icon">@</span>
                   <input
                     id="reg-email"
                     type="email"
@@ -177,52 +243,52 @@ export default function LoginPage() {
                     required
                   />
                 </div>
+                {firstError('email') && <p className="field-error">{firstError('email')}</p>}
               </div>
 
               <div className="form-group">
-                <label className="form-label">Contraseña</label>
+                <label className="form-label">Contrasena</label>
                 <div className="input-icon-wrap">
-                  <span className="icon">🔒</span>
+                  <span className="icon">*</span>
                   <input
                     id="reg-password"
                     type={showPass ? 'text' : 'password'}
                     className="form-input"
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder="Minimo 8 caracteres"
                     value={regData.password}
                     onChange={e => setRegData({ ...regData, password: e.target.value })}
                     required
                   />
-                  <button
-                    type="button"
-                    className="show-pass-btn"
-                    onClick={() => setShowPass(!showPass)}
-                  >
-                    {showPass ? '🙈' : '👁'}
+                  <button type="button" className="show-pass-btn" onClick={() => setShowPass(!showPass)}>
+                    {showPass ? 'Ocultar' : 'Ver'}
                   </button>
                 </div>
+                <div className="password-rules">
+                  {passwordRules.map(rule => (
+                    <span key={rule.label} className={rule.valid ? 'valid' : ''}>
+                      {rule.label}
+                    </span>
+                  ))}
+                </div>
+                {firstError('password') && <p className="field-error">{firstError('password')}</p>}
               </div>
 
               <div className="form-group">
                 <label className="form-label">Tipo de cuenta</label>
-                <select
-                  id="reg-rol"
-                  className="form-input"
-                  value={regData.rol}
-                  onChange={e => setRegData({ ...regData, rol: e.target.value })}
-                >
-                  <option value="cinefilo">🎬 Cinéfilo</option>
-                  <option value="productor">🎥 Productor / Estudio</option>
+                <select id="reg-rol" className="form-input" value="cinefilo" disabled>
+                  <option value="cinefilo">Cinefilo</option>
                 </select>
               </div>
 
-              <button type="submit" className="btn btn-primary login-submit-btn">
-                Crear Cuenta
+              {formMessage && <p className={`form-message ${formMessage.type}`}>{formMessage.text}</p>}
+
+              <button type="submit" className="btn btn-primary login-submit-btn" disabled={loading}>
+                {loading ? 'Creando...' : 'Crear Cuenta'}
               </button>
 
               <p className="login-terms">
-                Al registrarte aceptas nuestros{' '}
-                <a href="#">Términos de Uso</a> y{' '}
-                <a href="#">Política de Privacidad</a>.
+                Al registrarte aceptas nuestros <a href="#">Terminos de Uso</a> y{' '}
+                <a href="#">Politica de Privacidad</a>.
               </p>
             </form>
           )}

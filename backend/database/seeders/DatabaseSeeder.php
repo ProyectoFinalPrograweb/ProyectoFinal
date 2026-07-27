@@ -2,114 +2,170 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Favorito;
 use App\Models\Genero;
 use App\Models\Pelicula;
 use App\Models\Resena;
-use App\Models\Favorito;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Crear Roles
-        $adminRole = Role::create([
-            'nombre' => 'Administrador',
-            'descripcion' => 'Acceso total y gestión del sistema'
-        ]);
-        
-        $modRole = Role::create([
-            'nombre' => 'Moderador',
-            'descripcion' => 'Supervisión de contenido y reseñas'
-        ]);
-        
-        $userRole = Role::create([
-            'nombre' => 'Cinéfilo',
-            'descripcion' => 'Usuario estándar de la comunidad universitaria'
-        ]);
+        $roles = collect([
+            ['nombre' => 'Administrador', 'descripcion' => 'Acceso total al sistema'],
+            ['nombre' => 'Moderador', 'descripcion' => 'Revision de peliculas y resenas'],
+            ['nombre' => 'Cinefilo', 'descripcion' => 'Usuario estandar de la comunidad'],
+        ])->mapWithKeys(function (array $role) {
+            $model = Role::updateOrCreate(
+                ['nombre' => $role['nombre']],
+                ['descripcion' => $role['descripcion']]
+            );
 
-        // 2. Crear Usuarios obligatorios (Credenciales de prueba para evaluación)
-        // La contraseña cumple con los requisitos: 8+ chars, Mayúscula, Número y Carácter Especial
-        $admin = User::create([
-            'name' => 'Admin CinemaITO',
-            'email' => 'admin@cinemaito.com',
-            'password' => Hash::make('Admin123!'),
-            'role_id' => $adminRole->id,
-        ]);
+            return [$role['nombre'] => $model];
+        });
 
-        $mod = User::create([
-            'name' => 'Moderador ITO',
-            'email' => 'mod@cinemaito.com',
-            'password' => Hash::make('Moderador123!'),
-            'role_id' => $modRole->id,
-        ]);
+        $users = collect([
+            ['name' => 'Admin CinemaITO', 'email' => 'admin@cinemaito.com', 'password' => 'Admin123!', 'role' => 'Administrador'],
+            ['name' => 'Moderador ITO', 'email' => 'mod@cinemaito.com', 'password' => 'Moderador123!', 'role' => 'Moderador'],
+            ['name' => 'Usuario Cinefilo', 'email' => 'user@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
+            ['name' => 'Developer Evaluador', 'email' => 'developer@cinemaito.com', 'password' => 'Developer123!', 'role' => 'Administrador'],
+            ['name' => 'Ana Lopez', 'email' => 'ana@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
+            ['name' => 'Carlos Ruiz', 'email' => 'carlos@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
+            ['name' => 'Diana Perez', 'email' => 'diana@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
+            ['name' => 'Eduardo Vega', 'email' => 'eduardo@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
+            ['name' => 'Fernanda Soto', 'email' => 'fernanda@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
+            ['name' => 'Gabriel Torres', 'email' => 'gabriel@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Moderador'],
+            ['name' => 'Hilda Ramos', 'email' => 'hilda@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
+            ['name' => 'Ivan Castillo', 'email' => 'ivan@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
+        ])->mapWithKeys(function (array $user) use ($roles) {
+            $model = User::updateOrCreate(
+                ['email' => $user['email']],
+                [
+                    'name' => $user['name'],
+                    'password' => Hash::make($user['password']),
+                    'role_id' => $roles[$user['role']]->id,
+                ]
+            );
 
-        $user = User::create([
-            'name' => 'Estudiante Cinéfilo',
-            'email' => 'user@cinemaito.com',
-            'password' => Hash::make('Usuario123!'),
-            'role_id' => $userRole->id,
-        ]);
+            return [$user['email'] => $model];
+        });
 
-        // 3. Crear Géneros
-        $generosNombres = ['Drama', 'Comedia', 'Terror', 'Sci-Fi / Ciencia Ficción', 'Documental', 'Romance'];
-        $generosMod = [];
-        foreach ($generosNombres as $nombre) {
-            $generosMod[] = Genero::create([
-                'nombre' => $nombre,
-                'descripcion' => "Películas del género $nombre"
-            ]);
-        }
+        $generos = collect([
+            ['nombre' => 'Drama', 'descripcion' => 'Historias centradas en conflictos humanos y sociales'],
+            ['nombre' => 'Comedia', 'descripcion' => 'Peliculas con tono ligero, humor o satira'],
+            ['nombre' => 'Terror', 'descripcion' => 'Relatos de miedo, suspenso y elementos sobrenaturales'],
+            ['nombre' => 'Ciencia ficcion', 'descripcion' => 'Futuros posibles, tecnologia y especulacion social'],
+            ['nombre' => 'Documental', 'descripcion' => 'Narrativas basadas en hechos reales'],
+            ['nombre' => 'Romance', 'descripcion' => 'Historias sobre relaciones afectivas'],
+            ['nombre' => 'Fantasia', 'descripcion' => 'Mundos imaginarios y elementos magicos'],
+            ['nombre' => 'Accion', 'descripcion' => 'Ritmo rapido, persecuciones y escenas de riesgo'],
+            ['nombre' => 'Suspenso', 'descripcion' => 'Tension, misterio y giros narrativos'],
+            ['nombre' => 'Animacion', 'descripcion' => 'Obras creadas con tecnicas animadas'],
+        ])->mapWithKeys(function (array $genero) {
+            $model = Genero::updateOrCreate(
+                ['nombre' => $genero['nombre']],
+                ['descripcion' => $genero['descripcion']]
+            );
 
-        // 4. Crear Películas de prueba (Cine Mexicano)
+            return [$genero['nombre'] => $model];
+        });
+
+        $admin = $users['admin@cinemaito.com'];
+        $moderador = $users['mod@cinemaito.com'];
+
         $peliculasDatos = [
-            ['titulo' => 'Amores Perros', 'director' => 'Alejandro González Iñárritu', 'anio' => 2000, 'sinopsis' => 'Tres historias cruzadas tras un trágico accidente automovilístico en la CDMX.'],
-            ['titulo' => 'Sleep Dealer', 'director' => 'Alex Rivera', 'anio' => 2008, 'sinopsis' => 'Un futuro distópico sobre fronteras tecnológicas y recursos hídricos.'],
-            ['titulo' => 'Como Agua para Chocolate', 'director' => 'Alfonso Arau', 'anio' => 1992, 'sinopsis' => 'Amor y realismo mágico a través de la cocina mexicana.'],
-            ['titulo' => 'El Callejón de los Milagros', 'director' => 'Jorge Fons', 'anio' => 1995, 'sinopsis' => 'Historias entrelazadas en un barrio tradicional del centro histórico.'],
-            ['titulo' => 'Roma', 'director' => 'Alfonso Cuarón', 'anio' => 2018, 'sinopsis' => 'Retrato íntimo de una familia y su empleada doméstica en los años 70.'],
-            ['titulo' => 'Macario', 'director' => 'Roberto Gavaldón', 'anio' => 1960, 'sinopsis' => 'Un campesino realiza un pacto con la Muerte el Día de Muertos.'],
-            ['titulo' => 'Güeros', 'director' => 'Alonso Ruizpalacios', 'anio' => 2014, 'sinopsis' => 'Un viaje en auto por la CDMX durante la huelga universitaria.'],
-            ['titulo' => 'El Laberinto del Fauno', 'director' => 'Guillermo del Toro', 'anio' => 2006, 'sinopsis' => 'Fantasía mística y drama histórico en la posguerra.'],
-            ['titulo' => 'Cronos', 'director' => 'Guillermo del Toro', 'anio' => 1993, 'sinopsis' => 'Un anticuario descubre un artefacto misterioso que otorga la vida eterna.'],
-            ['titulo' => 'Noche de Fuego', 'director' => 'Tatiana Huezo', 'anio' => 2021, 'sinopsis' => 'Tres niñas crecen en una zona montañosa marcada por el peligro.'],
+            ['titulo' => 'Amores Perros', 'director' => 'Alejandro Gonzalez Inarritu', 'anio' => 2000, 'genero' => 'Drama', 'sinopsis' => 'Tres historias se cruzan despues de un accidente en la Ciudad de Mexico.'],
+            ['titulo' => 'Roma', 'director' => 'Alfonso Cuaron', 'anio' => 2018, 'genero' => 'Drama', 'sinopsis' => 'Retrato intimo de una familia y su trabajadora domestica en los anos setenta.'],
+            ['titulo' => 'Macario', 'director' => 'Roberto Gavaldon', 'anio' => 1960, 'genero' => 'Fantasia', 'sinopsis' => 'Un campesino hambriento se encuentra con la Muerte durante Dia de Muertos.'],
+            ['titulo' => 'Cronos', 'director' => 'Guillermo del Toro', 'anio' => 1993, 'genero' => 'Terror', 'sinopsis' => 'Un anticuario descubre un artefacto que ofrece vida eterna a un alto costo.'],
+            ['titulo' => 'Gueros', 'director' => 'Alonso Ruizpalacios', 'anio' => 2014, 'genero' => 'Comedia', 'sinopsis' => 'Dos jovenes recorren la ciudad durante una huelga universitaria.'],
+            ['titulo' => 'Noche de Fuego', 'director' => 'Tatiana Huezo', 'anio' => 2021, 'genero' => 'Drama', 'sinopsis' => 'Tres ninas crecen en una comunidad marcada por la violencia.'],
+            ['titulo' => 'Temporada de Patos', 'director' => 'Fernando Eimbcke', 'anio' => 2004, 'genero' => 'Comedia', 'sinopsis' => 'Un domingo sin adultos transforma la rutina de dos adolescentes.'],
+            ['titulo' => 'La Jaula de Oro', 'director' => 'Diego Quemada-Diez', 'anio' => 2013, 'genero' => 'Drama', 'sinopsis' => 'Jovenes migrantes viajan hacia el norte buscando una nueva vida.'],
+            ['titulo' => 'Ya No Estoy Aqui', 'director' => 'Fernando Frias', 'anio' => 2019, 'genero' => 'Drama', 'sinopsis' => 'Un joven de Monterrey enfrenta el exilio y la nostalgia por su barrio.'],
+            ['titulo' => 'Sueno en Otro Idioma', 'director' => 'Ernesto Contreras', 'anio' => 2017, 'genero' => 'Fantasia', 'sinopsis' => 'Un linguista intenta rescatar una lengua indigena a punto de desaparecer.'],
+            ['titulo' => 'Museo', 'director' => 'Alonso Ruizpalacios', 'anio' => 2018, 'genero' => 'Suspenso', 'sinopsis' => 'Dos estudiantes planean el robo de piezas arqueologicas del museo nacional.'],
+            ['titulo' => 'El Infierno', 'director' => 'Luis Estrada', 'anio' => 2010, 'genero' => 'Accion', 'sinopsis' => 'Un migrante deportado entra al mundo del crimen organizado.'],
+            ['titulo' => 'La Camarista', 'director' => 'Lila Aviles', 'anio' => 2018, 'genero' => 'Drama', 'sinopsis' => 'Una trabajadora de hotel busca oportunidades en medio de una rutina exigente.'],
+            ['titulo' => 'Hasta los Dientes', 'director' => 'Alberto Arnaut', 'anio' => 2018, 'genero' => 'Documental', 'sinopsis' => 'Investigacion sobre una injusticia cometida contra estudiantes del Tec de Monterrey.'],
+            ['titulo' => 'Ana y Bruno', 'director' => 'Carlos Carrera', 'anio' => 2017, 'genero' => 'Animacion', 'sinopsis' => 'Una nina emprende una aventura para ayudar a su madre.'],
         ];
 
-        $peliculasCreadas = [];
-        foreach ($peliculasDatos as $index => $data) {
-            $peliculasCreadas[] = Pelicula::create([
-                'titulo' => $data['titulo'],
-                'director' => $data['director'],
-                'anio' => $data['anio'],
-                'sinopsis' => $data['sinopsis'],
-                'imagen' => null,
-                'genero_id' => $generosMod[$index % count($generosMod)]->id,
-                'usuario_id' => $admin->id,
-            ]);
+        $peliculas = collect($peliculasDatos)->mapWithKeys(function (array $pelicula, int $index) use ($admin, $moderador, $generos) {
+            $publicador = $index % 3 === 0 ? $moderador : $admin;
+            $model = Pelicula::updateOrCreate(
+                ['titulo' => $pelicula['titulo']],
+                [
+                    'director' => $pelicula['director'],
+                    'anio' => $pelicula['anio'],
+                    'sinopsis' => $pelicula['sinopsis'],
+                    'imagen' => null,
+                    'genero_id' => $generos[$pelicula['genero']]->id,
+                    'usuario_id' => $publicador->id,
+                ]
+            );
+
+            return [$pelicula['titulo'] => $model];
+        });
+
+        $resenasDatos = [
+            ['email' => 'user@cinemaito.com', 'pelicula' => 'Amores Perros', 'calificacion' => 9.5, 'comentario' => 'Una pelicula intensa que se siente viva desde la primera escena.'],
+            ['email' => 'ana@cinemaito.com', 'pelicula' => 'Roma', 'calificacion' => 9.7, 'comentario' => 'Visualmente hermosa y con una mirada muy humana.'],
+            ['email' => 'carlos@cinemaito.com', 'pelicula' => 'Macario', 'calificacion' => 9.0, 'comentario' => 'Un clasico con una atmosfera inolvidable.'],
+            ['email' => 'diana@cinemaito.com', 'pelicula' => 'Cronos', 'calificacion' => 8.6, 'comentario' => 'Terror elegante con sello muy personal.'],
+            ['email' => 'eduardo@cinemaito.com', 'pelicula' => 'Gueros', 'calificacion' => 8.3, 'comentario' => 'Fresca, rara y muy entretenida.'],
+            ['email' => 'fernanda@cinemaito.com', 'pelicula' => 'Noche de Fuego', 'calificacion' => 9.2, 'comentario' => 'Dura, sensible y muy bien actuada.'],
+            ['email' => 'hilda@cinemaito.com', 'pelicula' => 'Temporada de Patos', 'calificacion' => 8.5, 'comentario' => 'Minimalista, divertida y llena de detalles.'],
+            ['email' => 'ivan@cinemaito.com', 'pelicula' => 'La Jaula de Oro', 'calificacion' => 9.1, 'comentario' => 'Una historia necesaria y conmovedora.'],
+            ['email' => 'gabriel@cinemaito.com', 'pelicula' => 'Ya No Estoy Aqui', 'calificacion' => 9.4, 'comentario' => 'Tiene identidad, musica y una gran energia visual.'],
+            ['email' => 'user@cinemaito.com', 'pelicula' => 'Sueno en Otro Idioma', 'calificacion' => 8.7, 'comentario' => 'Una propuesta poetica sobre memoria y lenguaje.'],
+            ['email' => 'ana@cinemaito.com', 'pelicula' => 'Museo', 'calificacion' => 8.4, 'comentario' => 'Muy buen ritmo y una historia atrapante.'],
+            ['email' => 'carlos@cinemaito.com', 'pelicula' => 'El Infierno', 'calificacion' => 8.8, 'comentario' => 'Satira fuerte, incomoda y efectiva.'],
+            ['email' => 'diana@cinemaito.com', 'pelicula' => 'La Camarista', 'calificacion' => 8.9, 'comentario' => 'Sencilla en apariencia, pero muy poderosa.'],
+            ['email' => 'eduardo@cinemaito.com', 'pelicula' => 'Hasta los Dientes', 'calificacion' => 9.0, 'comentario' => 'Un documental claro, doloroso y necesario.'],
+            ['email' => 'fernanda@cinemaito.com', 'pelicula' => 'Ana y Bruno', 'calificacion' => 8.0, 'comentario' => 'Una aventura animada con buen corazon.'],
+        ];
+
+        foreach ($resenasDatos as $resena) {
+            Resena::updateOrCreate(
+                [
+                    'usuario_id' => $users[$resena['email']]->id,
+                    'pelicula_id' => $peliculas[$resena['pelicula']]->id,
+                ],
+                [
+                    'comentario' => $resena['comentario'],
+                    'calificacion' => $resena['calificacion'],
+                ]
+            );
         }
 
-        // 5. Crear Reseñas de prueba
-        Resena::create([
-            'usuario_id' => $user->id,
-            'pelicula_id' => $peliculasCreadas[0]->id,
-            'comentario' => 'Una obra maestra del cine contemporáneo nacional.',
-            'calificacion' => 9.5
-        ]);
+        $favoritosDatos = [
+            ['email' => 'user@cinemaito.com', 'pelicula' => 'Roma'],
+            ['email' => 'user@cinemaito.com', 'pelicula' => 'Macario'],
+            ['email' => 'ana@cinemaito.com', 'pelicula' => 'Amores Perros'],
+            ['email' => 'ana@cinemaito.com', 'pelicula' => 'La Camarista'],
+            ['email' => 'carlos@cinemaito.com', 'pelicula' => 'El Infierno'],
+            ['email' => 'carlos@cinemaito.com', 'pelicula' => 'Museo'],
+            ['email' => 'diana@cinemaito.com', 'pelicula' => 'Cronos'],
+            ['email' => 'diana@cinemaito.com', 'pelicula' => 'Noche de Fuego'],
+            ['email' => 'eduardo@cinemaito.com', 'pelicula' => 'Gueros'],
+            ['email' => 'eduardo@cinemaito.com', 'pelicula' => 'Ya No Estoy Aqui'],
+            ['email' => 'fernanda@cinemaito.com', 'pelicula' => 'Ana y Bruno'],
+            ['email' => 'gabriel@cinemaito.com', 'pelicula' => 'Hasta los Dientes'],
+            ['email' => 'hilda@cinemaito.com', 'pelicula' => 'Temporada de Patos'],
+            ['email' => 'ivan@cinemaito.com', 'pelicula' => 'La Jaula de Oro'],
+            ['email' => 'developer@cinemaito.com', 'pelicula' => 'Sueno en Otro Idioma'],
+        ];
 
-        Resena::create([
-            'usuario_id' => $user->id,
-            'pelicula_id' => $peliculasCreadas[1]->id,
-            'comentario' => 'Muy buena propuesta de ciencia ficción con crítica social.',
-            'calificacion' => 8.8
-        ]);
-
-        // 6. Agregar a Favoritos de prueba
-        Favorito::create([
-            'usuario_id' => $user->id,
-            'pelicula_id' => $peliculasCreadas[0]->id,
-        ]);
+        foreach ($favoritosDatos as $favorito) {
+            Favorito::updateOrCreate([
+                'usuario_id' => $users[$favorito['email']]->id,
+                'pelicula_id' => $peliculas[$favorito['pelicula']]->id,
+            ]);
+        }
     }
 }

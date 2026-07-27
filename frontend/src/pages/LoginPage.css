@@ -225,6 +225,46 @@
   margin-top: var(--spacing-sm);
   border-radius: var(--radius-md);
 }
+.login-submit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.field-error,
+.form-message {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.field-error,
+.form-message.error {
+  color: #ff8aa8;
+}
+
+.form-message.success {
+  color: #72e2a7;
+}
+
+.password-rules {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 0.74rem;
+  color: var(--color-text-dim);
+}
+
+.password-rules span::before {
+  content: 'x ';
+}
+
+.password-rules span.valid {
+  color: #72e2a7;
+}
+
+.password-rules span.valid::before {
+  content: 'ok ';
+}
 
 /* Divider */
 .login-divider {
