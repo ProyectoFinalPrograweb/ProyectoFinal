@@ -39,7 +39,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-logo">
-          <img src="/cinema-ito-logo.png" alt="Cinema ITO" className="navbar-logo-img" />
+          <img src="/cinema-ito-logo-clean.png" alt="Cinema ITO" className="navbar-logo-img" />
         </Link>
 
         <ul className="navbar-links">

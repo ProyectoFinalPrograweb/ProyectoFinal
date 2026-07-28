@@ -64,7 +64,7 @@ export default function ResetPassword() {
         <div className="login-visual-overlay" />
         <div className="login-visual-content">
           <Link to="/" className="login-logo">
-            Cinema <span>ITO</span>
+            <img src="/cinema-ito-logo-clean.png" alt="Cinema ITO" className="login-logo-img" />
           </Link>
           <div className="login-tagline">
             <h1>Restablecer Acceso</h1>

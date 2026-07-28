@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="footer-inner container">
         <div className="footer-brand">
           <Link to="/" className="footer-logo" aria-label="Cinema ITO">
-            <img src="/cinema-ito-logo.png" alt="Cinema ITO" className="footer-logo-img" />
+            <img src="/cinema-ito-logo-clean.png" alt="Cinema ITO" className="footer-logo-img" />
           </Link>
           <p className="footer-desc">
             La plataforma universitaria para descubrir, celebrar y compartir el cine mexicano.

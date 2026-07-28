@@ -118,7 +118,7 @@ export default function LoginPage() {
 
         <div className="login-visual-content">
           <Link to="/" className="login-logo">
-            <img src="/cinema-ito-logo.png" alt="Cinema ITO" className="login-logo-img" />
+            <img src="/cinema-ito-logo-clean.png" alt="Cinema ITO" className="login-logo-img" />
           </Link>
           <div className="login-tagline">
             <h1>Celebrando el Cine Mexicano</h1>
