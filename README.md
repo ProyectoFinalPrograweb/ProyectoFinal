@@ -391,8 +391,8 @@ Debe incluir pantallas por rol, paleta justificada y logo original.
 
 Pendiente para entrega final:
 
-```text
-URL PROYECTO HTTPS: PENDIENTE
+## URL PROYECTO HTTPS:    
+    https://srv1829255.hstgr.cloud
 URL BASE API HTTPS: PENDIENTE
 ```
 
