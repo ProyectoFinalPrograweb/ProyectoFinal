@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\MovieApiService;
 use App\Http\Requests\PeliculaIndexRequest;
 use App\Http\Requests\StoreGeneroRequest;
 use App\Http\Requests\StorePeliculaRequest;
@@ -298,4 +299,125 @@ class CinemaController extends Controller
             'data' => UserResource::make($user),
         ]);
     }
+
+    public function buscarPeliculasApi(Request $request, MovieApiService $movieApiService): JsonResponse
+    {
+        $query = (string) $request->query('query', '');
+        $results = $movieApiService->searchMovies($query);
+
+        return response()->json([
+            'data' => $results,
+        ]);
+    }
+
+    public function obtenerDetalleApi(int $externalId, MovieApiService $movieApiService): JsonResponse
+    {
+        $details = $movieApiService->getMovieDetails($externalId);
+
+        if (!$details) {
+            return response()->json(['message' => 'No se encontraron detalles para esta pelicula en la API.'], 404);
+        }
+
+        return response()->json([
+            'data' => $details,
+        ]);
+    }
+
+    public function sincronizarPosters(MovieApiService $movieApiService): JsonResponse
+    {
+        $peliculas = Pelicula::all();
+        $actualizadas = 0;
+
+        foreach ($peliculas as $pelicula) {
+            $poster = $movieApiService->getPosterForTitle($pelicula->titulo);
+            if ($pelicula->imagen !== $poster) {
+                $pelicula->update(['imagen' => $poster]);
+                $actualizadas++;
+            }
+        }
+
+        return response()->json([
+            'message' => "Se sincronizaron los posters de {$actualizadas} peliculas exitosamente.",
+            'actualizadas' => $actualizadas,
+        ]);
+    }
+
+    public function importarYFavorito(Request $request, MovieApiService $movieApiService): JsonResponse
+    {
+        $validated = $request->validate([
+            'external_id' => ['nullable', 'integer'],
+            'titulo' => ['required', 'string', 'max:255'],
+            'director' => ['nullable', 'string', 'max:255'],
+            'anio' => ['nullable', 'integer'],
+            'sinopsis' => ['nullable', 'string'],
+            'imagen' => ['nullable', 'string'],
+            'genero_nombre' => ['nullable', 'string'],
+            'vista' => ['nullable', 'boolean'],
+        ]);
+
+        $genero = null;
+        if (!empty($validated['genero_nombre'])) {
+            $genero = Genero::where('nombre', 'like', "%{$validated['genero_nombre']}%")->first();
+        }
+        if (!$genero) {
+            $genero = Genero::first() ?? Genero::create(['nombre' => 'Drama', 'descripcion' => 'General']);
+        }
+
+        $pelicula = Pelicula::where('titulo', $validated['titulo'])->first();
+
+        if (!$pelicula) {
+            $director = $validated['director'] ?? null;
+            $sinopsis = $validated['sinopsis'] ?? null;
+            $anio = $validated['anio'] ?? (int) date('Y');
+            $imagen = $validated['imagen'] ?? null;
+
+            if (!empty($validated['external_id'])) {
+                $details = $movieApiService->getMovieDetails((int) $validated['external_id']);
+                if ($details) {
+                    $director = $director ?: ($details['director'] ?? 'Desconocido');
+                    
+                    if (empty($sinopsis) || str_contains($sinopsis, 'Informacion basica')) {
+                        $sinopsis = $details['sinopsis'] ?? 'Sin sinopsis.';
+                    }
+                    
+                    $anio = $anio ?: ($details['anio'] ?? (int) date('Y'));
+                    $imagen = $imagen ?: ($details['imagen'] ?? null);
+                }
+            }
+
+            $pelicula = Pelicula::create([
+                'titulo' => $validated['titulo'],
+                'director' => $director ?: 'Director Desconocido',
+                'anio' => $anio ?: (int) date('Y'),
+                'sinopsis' => $sinopsis ?: 'Pelicula agregada por la comunidad.',
+                'imagen' => $imagen ?: $movieApiService->getPosterForTitle($validated['titulo']),
+                'genero_id' => $genero->id,
+                'usuario_id' => $request->user()->id,
+            ]);
+        }
+
+        $favorito = Favorito::firstOrCreate([
+            'usuario_id' => $request->user()->id,
+            'pelicula_id' => $pelicula->id,
+        ]);
+
+        if (isset($validated['vista'])) {
+            $favorito->update(['vista' => (bool) $validated['vista']]);
+        }
+
+        $pelicula->load(['genero'])
+            ->loadAvg('resenas as calificacion_promedio', 'calificacion')
+            ->loadCount(['resenas', 'marcadosPorUsuarios as favoritos_count']);
+
+        $pelicula->en_mi_lista = true;
+        $pelicula->vista = (bool) $favorito->vista;
+
+        return response()->json([
+            'message' => 'Pelicula agregada a tu lista exitosamente.',
+            'enMiLista' => true,
+            'vista' => (bool) $favorito->vista,
+            'data' => PeliculaResource::make($pelicula),
+        ], 201);
+    }
 }
+

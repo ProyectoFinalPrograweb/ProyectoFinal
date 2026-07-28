@@ -78,21 +78,21 @@ class DatabaseSeeder extends Seeder
         $moderador = $users['mod@cinemaito.com'];
 
         $peliculasDatos = [
-            ['titulo' => 'Amores Perros', 'director' => 'Alejandro Gonzalez Inarritu', 'anio' => 2000, 'genero' => 'Drama', 'sinopsis' => 'Tres historias se cruzan despues de un accidente en la Ciudad de Mexico.'],
-            ['titulo' => 'Roma', 'director' => 'Alfonso Cuaron', 'anio' => 2018, 'genero' => 'Drama', 'sinopsis' => 'Retrato intimo de una familia y su trabajadora domestica en los anos setenta.'],
-            ['titulo' => 'Macario', 'director' => 'Roberto Gavaldon', 'anio' => 1960, 'genero' => 'Fantasia', 'sinopsis' => 'Un campesino hambriento se encuentra con la Muerte durante Dia de Muertos.'],
-            ['titulo' => 'Cronos', 'director' => 'Guillermo del Toro', 'anio' => 1993, 'genero' => 'Terror', 'sinopsis' => 'Un anticuario descubre un artefacto que ofrece vida eterna a un alto costo.'],
-            ['titulo' => 'Gueros', 'director' => 'Alonso Ruizpalacios', 'anio' => 2014, 'genero' => 'Comedia', 'sinopsis' => 'Dos jovenes recorren la ciudad durante una huelga universitaria.'],
-            ['titulo' => 'Noche de Fuego', 'director' => 'Tatiana Huezo', 'anio' => 2021, 'genero' => 'Drama', 'sinopsis' => 'Tres ninas crecen en una comunidad marcada por la violencia.'],
-            ['titulo' => 'Temporada de Patos', 'director' => 'Fernando Eimbcke', 'anio' => 2004, 'genero' => 'Comedia', 'sinopsis' => 'Un domingo sin adultos transforma la rutina de dos adolescentes.'],
-            ['titulo' => 'La Jaula de Oro', 'director' => 'Diego Quemada-Diez', 'anio' => 2013, 'genero' => 'Drama', 'sinopsis' => 'Jovenes migrantes viajan hacia el norte buscando una nueva vida.'],
-            ['titulo' => 'Ya No Estoy Aqui', 'director' => 'Fernando Frias', 'anio' => 2019, 'genero' => 'Drama', 'sinopsis' => 'Un joven de Monterrey enfrenta el exilio y la nostalgia por su barrio.'],
-            ['titulo' => 'Sueno en Otro Idioma', 'director' => 'Ernesto Contreras', 'anio' => 2017, 'genero' => 'Fantasia', 'sinopsis' => 'Un linguista intenta rescatar una lengua indigena a punto de desaparecer.'],
-            ['titulo' => 'Museo', 'director' => 'Alonso Ruizpalacios', 'anio' => 2018, 'genero' => 'Suspenso', 'sinopsis' => 'Dos estudiantes planean el robo de piezas arqueologicas del museo nacional.'],
-            ['titulo' => 'El Infierno', 'director' => 'Luis Estrada', 'anio' => 2010, 'genero' => 'Accion', 'sinopsis' => 'Un migrante deportado entra al mundo del crimen organizado.'],
-            ['titulo' => 'La Camarista', 'director' => 'Lila Aviles', 'anio' => 2018, 'genero' => 'Drama', 'sinopsis' => 'Una trabajadora de hotel busca oportunidades en medio de una rutina exigente.'],
-            ['titulo' => 'Hasta los Dientes', 'director' => 'Alberto Arnaut', 'anio' => 2018, 'genero' => 'Documental', 'sinopsis' => 'Investigacion sobre una injusticia cometida contra estudiantes del Tec de Monterrey.'],
-            ['titulo' => 'Ana y Bruno', 'director' => 'Carlos Carrera', 'anio' => 2017, 'genero' => 'Animacion', 'sinopsis' => 'Una nina emprende una aventura para ayudar a su madre.'],
+            ['titulo' => 'Amores Perros', 'director' => 'Alejandro Gonzalez Inarritu', 'anio' => 2000, 'genero' => 'Drama', 'sinopsis' => 'Tres historias se cruzan despues de un accidente en la Ciudad de Mexico.', 'imagen' => 'https://image.tmdb.org/t/p/w500/wuTj5JvH7n9y3lVvB8k1C5H8aQx.jpg'],
+            ['titulo' => 'Roma', 'director' => 'Alfonso Cuaron', 'anio' => 2018, 'genero' => 'Drama', 'sinopsis' => 'Retrato intimo de una familia y su trabajadora domestica en los anos setenta.', 'imagen' => 'https://image.tmdb.org/t/p/w500/uxHzl4b7nQx9vLzV3qN5W3F8Yx.jpg'],
+            ['titulo' => 'Macario', 'director' => 'Roberto Gavaldon', 'anio' => 1960, 'genero' => 'Fantasia', 'sinopsis' => 'Un campesino hambriento se encuentra con la Muerte durante Dia de Muertos.', 'imagen' => 'https://image.tmdb.org/t/p/w500/uU3rM7b147v6nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'Cronos', 'director' => 'Guillermo del Toro', 'anio' => 1993, 'genero' => 'Terror', 'sinopsis' => 'Un anticuario descubre un artefacto que ofrece vida eterna a un alto costo.', 'imagen' => 'https://image.tmdb.org/t/p/w500/7aQvR1W0m41eX51V8Z3nQ2KxY7.jpg'],
+            ['titulo' => 'Gueros', 'director' => 'Alonso Ruizpalacios', 'anio' => 2014, 'genero' => 'Comedia', 'sinopsis' => 'Dos jovenes recorren la ciudad durante una huelga universitaria.', 'imagen' => 'https://image.tmdb.org/t/p/w500/4s2KxY7nQ21R0Qz5Z3nQ2KxY7.jpg'],
+            ['titulo' => 'Noche de Fuego', 'director' => 'Tatiana Huezo', 'anio' => 2021, 'genero' => 'Drama', 'sinopsis' => 'Tres ninas crecen en una comunidad marcada por la violencia.', 'imagen' => 'https://image.tmdb.org/t/p/w500/xV1Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'Temporada de Patos', 'director' => 'Fernando Eimbcke', 'anio' => 2004, 'genero' => 'Comedia', 'sinopsis' => 'Un domingo sin adultos transforma la rutina de dos adolescentes.', 'imagen' => 'https://image.tmdb.org/t/p/w500/yW2Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'La Jaula de Oro', 'director' => 'Diego Quemada-Diez', 'anio' => 2013, 'genero' => 'Drama', 'sinopsis' => 'Jovenes migrantes viajan hacia el norte buscando una nueva vida.', 'imagen' => 'https://image.tmdb.org/t/p/w500/zZ3Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'Ya No Estoy Aqui', 'director' => 'Fernando Frias', 'anio' => 2019, 'genero' => 'Drama', 'sinopsis' => 'Un joven de Monterrey enfrenta el exilio y la nostalgia por su barrio.', 'imagen' => 'https://image.tmdb.org/t/p/w500/aA4Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'Sueno en Otro Idioma', 'director' => 'Ernesto Contreras', 'anio' => 2017, 'genero' => 'Fantasia', 'sinopsis' => 'Un linguista intenta rescatar una lengua indigena a punto de desaparecer.', 'imagen' => 'https://image.tmdb.org/t/p/w500/bB5Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'Museo', 'director' => 'Alonso Ruizpalacios', 'anio' => 2018, 'genero' => 'Suspenso', 'sinopsis' => 'Dos estudiantes planean el robo de piezas arqueologicas del museo nacional.', 'imagen' => 'https://image.tmdb.org/t/p/w500/cC6Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'El Infierno', 'director' => 'Luis Estrada', 'anio' => 2010, 'genero' => 'Accion', 'sinopsis' => 'Un migrante deportado entra al mundo del crimen organizado.', 'imagen' => 'https://image.tmdb.org/t/p/w500/dD7Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'La Camarista', 'director' => 'Lila Aviles', 'anio' => 2018, 'genero' => 'Drama', 'sinopsis' => 'Una trabajadora de hotel busca oportunidades en medio de una rutina exigente.', 'imagen' => 'https://image.tmdb.org/t/p/w500/eE8Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'Hasta los Dientes', 'director' => 'Alberto Arnaut', 'anio' => 2018, 'genero' => 'Documental', 'sinopsis' => 'Investigacion sobre una injusticia cometida contra estudiantes del Tec de Monterrey.', 'imagen' => 'https://image.tmdb.org/t/p/w500/fF9Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
+            ['titulo' => 'Ana y Bruno', 'director' => 'Carlos Carrera', 'anio' => 2017, 'genero' => 'Animacion', 'sinopsis' => 'Una nina emprende una aventura para ayudar a su madre.', 'imagen' => 'https://image.tmdb.org/t/p/w500/gG0Z3nQ2KxY7nQ21R0Qz5Z2KxY7.jpg'],
         ];
 
         $peliculas = collect($peliculasDatos)->mapWithKeys(function (array $pelicula, int $index) use ($admin, $moderador, $generos) {
@@ -103,7 +103,7 @@ class DatabaseSeeder extends Seeder
                     'director' => $pelicula['director'],
                     'anio' => $pelicula['anio'],
                     'sinopsis' => $pelicula['sinopsis'],
-                    'imagen' => null,
+                    'imagen' => $pelicula['imagen'],
                     'genero_id' => $generos[$pelicula['genero']]->id,
                     'usuario_id' => $publicador->id,
                 ]

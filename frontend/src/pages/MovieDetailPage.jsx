@@ -88,7 +88,7 @@ export default function MovieDetailPage() {
   return (
     <div className="page-wrapper">
       <div className="detail-hero">
-        <img src={pelicula.imagen} alt={pelicula.titulo} className="detail-hero-img" />
+        <img src={pelicula.imagen} alt={pelicula.titulo} className="detail-hero-img" onError={e => { e.target.src = '/hero_banner.png'; }} />
         <div className="detail-hero-overlay" />
       </div>
 

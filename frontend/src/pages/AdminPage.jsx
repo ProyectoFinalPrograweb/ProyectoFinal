@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
-import { apiRequest, getCurrentUser } from '../services/api';
+import { apiRequest, getCurrentUser, buscarPeliculasApi, obtenerDetalleApi, sincronizarPostersApi } from '../services/api';
 import './AdminPage.css';
 
 const TABS = ['Peliculas', 'Usuarios', 'Resenas', 'Generos'];
@@ -14,6 +14,9 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [message, setMessage] = useState(null);
+  const [apiSearchQuery, setApiSearchQuery] = useState('');
+  const [apiSearchResults, setApiSearchResults] = useState([]);
+  const [apiSearchLoading, setApiSearchLoading] = useState(false);
   const user = getCurrentUser();
 
   const loadData = () => {
@@ -28,12 +31,81 @@ export default function AdminPage() {
     loadData();
   }, []);
 
-  const openMovieModal = pelicula => setModal({ type: 'movie', item: pelicula ? { ...pelicula } : { ...emptyMovie } });
+  const openMovieModal = pelicula => {
+    setApiSearchQuery('');
+    setApiSearchResults([]);
+    setModal({ type: 'movie', item: pelicula ? { ...pelicula } : { ...emptyMovie } });
+  };
   const openGenreModal = genero => setModal({ type: 'genre', item: genero ? { ...genero } : { ...emptyGenre } });
   const openRoleModal = usuario => setModal({ type: 'role', item: { ...usuario, role_id: usuario.role_id || '' } });
   const openDeleteModal = (entity, item) => setModal({ type: 'delete', entity, item });
 
-  const closeModal = () => setModal(null);
+  const closeModal = () => {
+    setApiSearchQuery('');
+    setApiSearchResults([]);
+    setModal(null);
+  };
+
+  const handleBuscarApi = async (e) => {
+    e.preventDefault();
+    if (!apiSearchQuery.trim()) return;
+    setApiSearchLoading(true);
+    try {
+      const response = await buscarPeliculasApi(apiSearchQuery);
+      setApiSearchResults(response.data || []);
+    } catch (err) {
+      setMessage({ type: 'error', text: 'No se pudo consultar la API de peliculas.' });
+    } finally {
+      setApiSearchLoading(false);
+    }
+  };
+
+  const handleSelectApiMovie = async (item) => {
+    let director = 'Desconocido';
+    let sinopsis = item.sinopsis;
+    let anio = item.anio || new Date().getFullYear();
+    let imagen = item.imagen;
+
+    if (item.external_id) {
+      try {
+        const details = await obtenerDetalleApi(item.external_id);
+        if (details?.data) {
+          director = details.data.director || director;
+          sinopsis = details.data.sinopsis || sinopsis;
+          anio = details.data.anio || anio;
+          imagen = details.data.imagen || imagen;
+        }
+      } catch (e) {
+        // Fallback a los datos básicos
+      }
+    }
+
+    setModal(current => ({
+      ...current,
+      item: {
+        ...current.item,
+        titulo: item.titulo,
+        director: director,
+        anio: anio,
+        sinopsis: sinopsis || 'Sin sinopsis disponible.',
+        imagen: imagen,
+      }
+    }));
+    setApiSearchResults([]);
+  };
+
+  const handleSincronizarPosters = async () => {
+    setLoading(true);
+    try {
+      const response = await sincronizarPostersApi();
+      setMessage({ type: 'success', text: response.message });
+      loadData();
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Error al sincronizar los posters.' });
+      setLoading(false);
+    }
+  };
+
 
   const submitMovie = async e => {
     e.preventDefault();
@@ -136,7 +208,16 @@ export default function AdminPage() {
             <span className="icon">@</span>
             <input type="text" className="form-input" placeholder={`Buscar en ${tab.toLowerCase()}...`} value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          {tab === 'Peliculas' && <button className="btn btn-primary" onClick={() => openMovieModal()}>+ Agregar Pelicula</button>}
+          {tab === 'Peliculas' && (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button className="btn btn-outline" onClick={handleSincronizarPosters} title="Obtener posters reales para todas las peliculas mediante la API de TMDB">
+                🔄 Sincronizar Posters (API)
+              </button>
+              <button className="btn btn-primary" onClick={() => openMovieModal()}>
+                + Agregar Pelicula
+              </button>
+            </div>
+          )}
           {tab === 'Generos' && <button className="btn btn-primary" onClick={() => openGenreModal()}>+ Agregar Genero</button>}
         </div>
 
@@ -217,6 +298,52 @@ export default function AdminPage() {
             {modal.type === 'movie' && (
               <form onSubmit={submitMovie} className="admin-modal-form">
                 <h3>{modal.item.id ? 'Editar pelicula' : 'Agregar pelicula'}</h3>
+
+                {/* Sección para buscar datos e imagen desde la API externa */}
+                <div style={{ background: 'rgba(255,255,255,0.04)', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '6px' }}>
+                    🔍 Auto-llenar desde API (TMDB):
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      className="form-input"
+                      style={{ marginBottom: 0 }}
+                      placeholder="Ej. Amores Perros, Roma, Titanic..."
+                      value={apiSearchQuery}
+                      onChange={e => setApiSearchQuery(e.target.value)}
+                    />
+                    <button type="button" className="btn btn-outline" onClick={handleBuscarApi} disabled={apiSearchLoading}>
+                      {apiSearchLoading ? '...' : 'Buscar API'}
+                    </button>
+                  </div>
+
+                  {apiSearchResults.length > 0 && (
+                    <div style={{ marginTop: '10px', maxHeight: '160px', overflowY: 'auto', background: '#18181c', border: '1px solid #333', borderRadius: '6px' }}>
+                      {apiSearchResults.map(res => (
+                        <div
+                          key={res.external_id}
+                          onClick={() => handleSelectApiMovie(res)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            padding: '8px',
+                            cursor: 'pointer',
+                            borderBottom: '1px solid #28282e',
+                          }}
+                        >
+                          <img src={res.imagen} alt={res.titulo} style={{ width: '32px', height: '48px', objectFit: 'cover', borderRadius: '4px' }} />
+                          <div style={{ flex: 1, fontSize: '0.85rem' }}>
+                            <strong style={{ display: 'block', color: '#fff' }}>{res.titulo} ({res.anio || 'N/A'})</strong>
+                            <span style={{ color: '#888', fontSize: '0.75rem' }}>⭐ {res.calificacion_api}</span>
+                          </div>
+                          <span style={{ color: '#e50914', fontSize: '0.8rem' }}>Usar datos</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <input className="form-input" placeholder="Titulo" value={modal.item.titulo} onChange={e => updateModalItem({ titulo: e.target.value })} required />
                 <input className="form-input" placeholder="Director" value={modal.item.director} onChange={e => updateModalItem({ director: e.target.value })} required />
                 <input className="form-input" type="number" placeholder="Anio" value={modal.item.anio} onChange={e => updateModalItem({ anio: e.target.value })} required />
@@ -224,7 +351,12 @@ export default function AdminPage() {
                   <option value="">Selecciona genero</option>
                   {data.generos.map(g => <option key={g.id} value={g.id}>{g.nombre}</option>)}
                 </select>
-                <input className="form-input" placeholder="URL de imagen opcional" value={modal.item.imagen || ''} onChange={e => updateModalItem({ imagen: e.target.value })} />
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input className="form-input" style={{ flex: 1 }} placeholder="URL de imagen poster (http://...)" value={modal.item.imagen || ''} onChange={e => updateModalItem({ imagen: e.target.value })} />
+                  {modal.item.imagen && (
+                    <img src={modal.item.imagen} alt="Preview" style={{ width: '36px', height: '48px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #444' }} />
+                  )}
+                </div>
                 <textarea className="form-input" placeholder="Sinopsis" value={modal.item.sinopsis} onChange={e => updateModalItem({ sinopsis: e.target.value })} rows={4} required />
                 <div className="admin-modal-actions"><button type="button" className="btn btn-outline" onClick={closeModal}>Cancelar</button><button className="btn btn-primary" type="submit">Guardar</button></div>
               </form>

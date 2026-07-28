@@ -35,9 +35,14 @@ export async function apiRequest(path, options = {}) {
     ...options,
   });
 
-  const data = await response.json();
+  const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearSession();
+      window.location.href = '/login';
+      return;
+    }
     const error = new Error(data.message || 'No se pudo completar la solicitud.');
     error.errors = data.errors || {};
     throw error;
@@ -58,3 +63,27 @@ export function buildQuery(params) {
   const query = searchParams.toString();
   return query ? `?${query}` : '';
 }
+
+export async function buscarPeliculasApi(query) {
+  if (!query) return { data: [] };
+  return apiRequest(`/peliculas-api/buscar?query=${encodeURIComponent(query)}`);
+}
+
+export async function obtenerDetalleApi(externalId) {
+  return apiRequest(`/peliculas-api/detalle/${externalId}`);
+}
+
+export async function sincronizarPostersApi() {
+  return apiRequest('/admin/peliculas/sincronizar-posters', {
+    method: 'POST',
+  });
+}
+
+export async function importarYFavoritoApi(movieData) {
+  return apiRequest('/peliculas/importar-favorito', {
+    method: 'POST',
+    body: JSON.stringify(movieData),
+  });
+}
+
+

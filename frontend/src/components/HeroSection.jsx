@@ -53,9 +53,6 @@ export default function HeroSection({ pelicula }) {
 
         {/* Botones */}
         <div className="hero-actions">
-          <Link to={`/pelicula/${pelicula.id}`} className="btn btn-primary hero-btn-play">
-            ▶ Reproducir
-          </Link>
           <button className="btn btn-outline hero-btn-list">
             + Mi Lista
           </button>

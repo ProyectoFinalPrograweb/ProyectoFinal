@@ -30,4 +30,11 @@ Route::middleware(['auth:sanctum', 'role:Administrador'])->post('/admin/generos'
 Route::middleware(['auth:sanctum', 'role:Administrador'])->put('/admin/generos/{genero}', [CinemaController::class, 'updateGenero']);
 Route::middleware(['auth:sanctum', 'role:Administrador'])->delete('/admin/generos/{genero}', [CinemaController::class, 'destroyGenero']);
 Route::middleware(['auth:sanctum', 'role:Administrador'])->delete('/admin/resenas/{resena}', [CinemaController::class, 'destroyResena']);
+Route::get('/peliculas-api/buscar', [CinemaController::class, 'buscarPeliculasApi']);
+Route::get('/peliculas-api/detalle/{id}', [CinemaController::class, 'obtenerDetalleApi']);
+
+Route::middleware('auth:sanctum')->post('/peliculas/importar-favorito', [CinemaController::class, 'importarYFavorito']);
+Route::middleware(['auth:sanctum', 'role:Administrador'])->post('/admin/peliculas/sincronizar-posters', [CinemaController::class, 'sincronizarPosters']);
 Route::middleware(['auth:sanctum', 'role:Administrador'])->put('/admin/users/{user}/role', [CinemaController::class, 'updateUserRole']);
+
+
