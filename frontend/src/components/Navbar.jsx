@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { apiRequest, clearSession, getCurrentUser } from '../services/api';
+import { apiRequest, clearSession, getAuthToken, getCurrentUser, saveSession } from '../services/api';
 import './Navbar.css';
 
 const NAV_LINKS = [
@@ -15,8 +15,22 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const user = getCurrentUser();
+  const [user, setUser] = useState(getCurrentUser());
   const initials = user?.name?.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase() || 'AG';
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) return;
+
+    apiRequest('/me')
+      .then(response => {
+        if (response.user) {
+          saveSession(response.user, token);
+          setUser(response.user);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const logout = async () => {
     try {
@@ -25,6 +39,7 @@ export default function Navbar() {
       // Local cleanup still happens if the token is already expired.
     }
     clearSession();
+    setUser(null);
     navigate('/login');
   };
 
