@@ -1,93 +1,137 @@
 import { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './LoginPage.css'; // Reutilizamos el CSS de tu login para mantener el estilo
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { apiRequest } from '../services/api';
+import './LoginPage.css';
 
 export default function ResetPassword() {
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const token = searchParams.get('token') || '';
+  const email = searchParams.get('email') || '';
 
-    // Capturamos el token y el email directamente de la URL
-    const token = searchParams.get('token');
-    const email = searchParams.get('email');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [message, setMessage] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-    const [password, setPassword] = useState('');
-    const [passwordConfirmation, setPasswordConfirmation] = useState('');
-    const [message, setMessage] = useState('');
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+  const passwordRules = [
+    { label: 'Minimo 8 caracteres', valid: password.length >= 8 },
+    { label: 'Una mayuscula', valid: /[A-Z]/.test(password) },
+    { label: 'Un numero', valid: /\d/.test(password) },
+    { label: 'Un caracter especial', valid: /[^A-Za-z0-9]/.test(password) },
+  ];
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setMessage('');
-        setError('');
+  const firstError = name => fieldErrors[name]?.[0];
 
-        if (password !== passwordConfirmation) {
-            setError('Las contraseñas no coinciden.');
-            setIsLoading(false);
-            return;
-        }
+  const handleSubmit = async event => {
+    event.preventDefault();
+    setLoading(true);
+    setMessage(null);
+    setFieldErrors({});
 
-        try {
-            const response = await axios.post('https://srv1829255.hstgr.cloud/api/reset-password', {
-                token: token,
-                email: email,
-                password: password,
-                password_confirmation: passwordConfirmation
-            });
+    if (password !== passwordConfirmation) {
+      setFieldErrors({ password_confirmation: ['Las contrasenas no coinciden.'] });
+      setLoading(false);
+      return;
+    }
 
-            setMessage('¡Contraseña restablecida con éxito! Redirigiendo al login...');
+    try {
+      const response = await apiRequest('/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          token,
+          email,
+          password,
+          password_confirmation: passwordConfirmation,
+        }),
+      });
 
-            // Esperar 2 segundos y redirigir al login
-            setTimeout(() => {
-                navigate('/login');
-            }, 2000);
+      setMessage({ type: 'success', text: response.message || 'Contrasena restablecida correctamente.' });
+      setTimeout(() => navigate('/login'), 1800);
+    } catch (error) {
+      setFieldErrors(error.errors || {});
+      setMessage({ type: 'error', text: error.message || 'Hubo un error al restablecer la contrasena.' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        } catch (err) {
-            setError(err.response?.data?.message || 'Hubo un error al restablecer la contraseña.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <div className="login-container"> {/* Usamos la clase de tu login */}
-            <div className="login-box">
-                <h2>Crear Nueva Contraseña</h2>
-                <p>Ingresa tu nueva contraseña para la cuenta {email}</p>
-
-                <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <label>NUEVA CONTRASEÑA</label>
-                        <input
-                            type="password"
-                            placeholder="Mínimo 8 caracteres"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-
-                    <div className="input-group">
-                        <label>CONFIRMAR CONTRASEÑA</label>
-                        <input
-                            type="password"
-                            placeholder="Vuelve a escribir la contraseña"
-                            value={passwordConfirmation}
-                            onChange={(e) => setPasswordConfirmation(e.target.value)}
-                            required
-                        />
-                    </div>
-
-                    {error && <p className="error-message" style={{ color: '#ff4d4d', fontSize: '14px' }}>{error}</p>}
-                    {message && <p className="success-message" style={{ color: '#4caf50', fontSize: '14px' }}>{message}</p>}
-
-                    <button type="submit" className="login-btn" disabled={isLoading}>
-                        {isLoading ? 'Guardando...' : 'Restablecer Contraseña'}
-                    </button>
-                </form>
-            </div>
+  return (
+    <div className="login-page">
+      <div className="login-visual">
+        <img src="/hero_banner.png" alt="Cinema ITO" className="login-bg-img" />
+        <div className="login-visual-overlay" />
+        <div className="login-visual-content">
+          <Link to="/" className="login-logo">
+            Cinema <span>ITO</span>
+          </Link>
+          <div className="login-tagline">
+            <h1>Restablecer Acceso</h1>
+            <p>Actualiza tu contrasena y vuelve a tu lista de peliculas.</p>
+          </div>
         </div>
-    );
+      </div>
+
+      <div className="login-form-panel">
+        <div className="login-form-container animate-scale-in">
+          <form className="login-form animate-fade-in" onSubmit={handleSubmit}>
+            <div className="login-greeting">
+              <h2>Crear nueva contrasena</h2>
+              <p>{email ? `Cuenta: ${email}` : 'El enlace no incluye correo. Solicita uno nuevo.'}</p>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Nueva contrasena</label>
+              <div className="input-icon-wrap">
+                <span className="icon">*</span>
+                <input
+                  type="password"
+                  className="form-input"
+                  placeholder="Minimo 8 caracteres"
+                  value={password}
+                  onChange={event => setPassword(event.target.value)}
+                  required
+                />
+              </div>
+              <div className="password-rules">
+                {passwordRules.map(rule => (
+                  <span key={rule.label} className={rule.valid ? 'valid' : ''}>
+                    {rule.label}
+                  </span>
+                ))}
+              </div>
+              {firstError('password') && <p className="field-error">{firstError('password')}</p>}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Confirmar contrasena</label>
+              <div className="input-icon-wrap">
+                <span className="icon">*</span>
+                <input
+                  type="password"
+                  className="form-input"
+                  placeholder="Repite la nueva contrasena"
+                  value={passwordConfirmation}
+                  onChange={event => setPasswordConfirmation(event.target.value)}
+                  required
+                />
+              </div>
+              {firstError('password_confirmation') && <p className="field-error">{firstError('password_confirmation')}</p>}
+            </div>
+
+            {message && <p className={`form-message ${message.type}`}>{message.text}</p>}
+
+            <button type="submit" className="btn btn-primary login-submit-btn" disabled={loading || !token || !email}>
+              {loading ? 'Guardando...' : 'Restablecer contrasena'}
+            </button>
+
+            <button type="button" className="btn btn-outline login-submit-btn" onClick={() => navigate('/login')}>
+              Volver al login
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 }

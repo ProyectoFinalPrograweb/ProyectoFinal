@@ -393,7 +393,8 @@ Pendiente para entrega final:
 
 ## URL PROYECTO HTTPS:    
     https://srv1829255.hstgr.cloud
-URL BASE API HTTPS: PENDIENTE
+URL BASE API HTTPS:
+    https://srv1829255.hstgr.cloud/api
 ```
 
 Checklist VPS:
