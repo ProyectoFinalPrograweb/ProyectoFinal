@@ -22,7 +22,8 @@ class ResenaResource extends JsonResource
             'usuario' => [
                 'id' => $this->usuario?->id,
                 'nombre' => $name,
-                'avatar' => collect(explode(' ', $name))->map(fn ($part) => $part[0] ?? '')->take(2)->join(''),
+                'avatar' => $this->usuario?->avatar,
+                'iniciales' => collect(explode(' ', $name))->map(fn ($part) => $part[0] ?? '')->take(2)->join(''),
             ],
         ];
     }

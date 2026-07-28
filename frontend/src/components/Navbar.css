@@ -149,6 +149,13 @@
   flex-shrink: 0;
 }
 .navbar-avatar:hover { transform: scale(1.08); }
+.navbar-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  display: block;
+}
 
 .navbar-login-btn {
   padding: 8px 18px;

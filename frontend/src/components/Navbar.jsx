@@ -78,7 +78,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link to="/perfil" className="navbar-avatar" title={`${user.name} - ${user.email}`}>
-                {initials}
+                {user.avatar ? <img src={user.avatar} alt={user.name} /> : initials}
               </Link>
               <button type="button" className="btn btn-primary navbar-login-btn" onClick={logout}>
                 Salir

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiRequest, getCurrentUser } from '../services/api';
 import './MovieCard.css';
 
 export default function MovieCard({ pelicula, variant = 'default' }) {
+  const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
   const [liked, setLiked] = useState(pelicula?.enMiLista || false);
   const user = getCurrentUser();
@@ -14,6 +15,7 @@ export default function MovieCard({ pelicula, variant = 'default' }) {
     event.preventDefault();
 
     if (!user) {
+      navigate('/login');
       return;
     }
 

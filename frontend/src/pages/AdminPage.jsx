@@ -269,7 +269,9 @@ export default function AdminPage() {
               <div key={r.id} className="admin-resena-card">
                 <div className="admin-resena-header">
                   <div className="admin-resena-user">
-                    <div className="admin-user-avatar sm">{r.usuario.avatar}</div>
+                    <div className="admin-user-avatar sm">
+                      {r.usuario.avatar ? <img src={r.usuario.avatar} alt={r.usuario.nombre} /> : r.usuario.iniciales}
+                    </div>
                     <div><span className="admin-movie-title">{r.usuario.nombre}</span><span className="table-text"> en {r.pelicula_titulo} - {r.fecha}</span></div>
                   </div>
                   <div className="admin-actions"><button className="admin-action-btn delete" onClick={() => openDeleteModal('resena', r)}>Eliminar</button></div>

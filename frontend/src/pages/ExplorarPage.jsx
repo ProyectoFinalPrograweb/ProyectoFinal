@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import Footer from '../components/Footer';
 import { apiRequest, buildQuery, buscarPeliculasApi, importarYFavoritoApi, getCurrentUser } from '../services/api';
 import './ExplorarPage.css';
 
 export default function ExplorarPage() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [generoId, setGeneroId] = useState(Number(searchParams.get('genero')) || 0);
@@ -66,7 +67,7 @@ export default function ExplorarPage() {
 
   const handleAgregarAMiLista = async (movie, vista = false) => {
     if (!user) {
-      setMessage({ type: 'error', text: 'Debes iniciar sesión para agregar películas a tu lista.' });
+      navigate('/login');
       return;
     }
 

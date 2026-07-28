@@ -258,6 +258,13 @@
   color: #fff;
   flex-shrink: 0;
 }
+.resena-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  display: block;
+}
 .resena-nombre {
   display: block;
   font-size: 0.9rem;

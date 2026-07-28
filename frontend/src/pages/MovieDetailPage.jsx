@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import StarRating from '../components/StarRating';
 import MovieCard from '../components/MovieCard';
 import Footer from '../components/Footer';
@@ -8,6 +8,7 @@ import './MovieDetailPage.css';
 
 export default function MovieDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [pelicula, setPelicula] = useState(null);
   const [enLista, setEnLista] = useState(false);
   const [miCalif, setMiCalif] = useState(0);
@@ -34,7 +35,7 @@ export default function MovieDetailPage() {
 
   const handleToggleFavorito = async () => {
     if (!user) {
-      setMessage({ type: 'error', text: 'Inicia sesion para guardar peliculas.' });
+      navigate('/login');
       return;
     }
 
@@ -53,7 +54,7 @@ export default function MovieDetailPage() {
     e.preventDefault();
 
     if (!user) {
-      setMessage({ type: 'error', text: 'Inicia sesion para publicar una resena.' });
+      navigate('/login');
       return;
     }
 
@@ -195,7 +196,9 @@ export default function MovieDetailPage() {
                   peliculaResenas.map(r => (
                     <div key={r.id} className="resena-card">
                       <div className="resena-header">
-                        <div className="resena-avatar">{r.usuario.avatar}</div>
+                        <div className="resena-avatar">
+                          {r.usuario.avatar ? <img src={r.usuario.avatar} alt={r.usuario.nombre} /> : r.usuario.iniciales}
+                        </div>
                         <div>
                           <span className="resena-nombre">{r.usuario.nombre}</span>
                           <span className="resena-fecha">{r.fecha}</span>
