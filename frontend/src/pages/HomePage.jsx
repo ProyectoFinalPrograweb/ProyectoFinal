@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import MovieCard from '../components/MovieCard';
@@ -25,7 +25,10 @@ export default function HomePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const heroMovie = peliculas[0];
+  const heroMovies = useMemo(
+    () => peliculas.filter(p => p.imagen).slice(0, 6),
+    [peliculas]
+  );
   const masVistas = [...peliculas].sort((a, b) => b.vistas - a.vistas).slice(0, 8);
   const mejorCalif = [...peliculas].sort((a, b) => b.calificacion_promedio - a.calificacion_promedio).slice(0, 8);
   const recientes = peliculas.filter(p => p.anio >= 2021).slice(0, 8);
@@ -36,7 +39,7 @@ export default function HomePage() {
 
   return (
     <div className="page-wrapper">
-      {heroMovie && <HeroSection pelicula={heroMovie} />}
+      {heroMovies.length > 0 && <HeroSection peliculas={heroMovies} />}
 
       <main className="home-main container">
         {error && <p className="form-message error">{error}</p>}

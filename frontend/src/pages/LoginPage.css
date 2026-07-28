@@ -48,15 +48,17 @@
 }
 
 .login-logo {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #fff;
   text-decoration: none;
   display: inline-block;
   width: fit-content;
 }
-.login-logo span { color: var(--color-primary); }
+.login-logo-img {
+  width: 190px;
+  height: 62px;
+  object-fit: contain;
+  object-position: left center;
+  display: block;
+}
 
 .login-tagline {
   margin-top: auto;

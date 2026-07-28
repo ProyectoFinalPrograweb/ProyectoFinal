@@ -30,18 +30,18 @@
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.2rem;
-  color: var(--color-text);
   text-decoration: none;
   flex-shrink: 0;
   transition: var(--transition-fast);
 }
 .navbar-logo:hover { opacity: 0.85; }
-.logo-icon { font-size: 1.3rem; }
-.logo-accent { color: var(--color-primary); }
+.navbar-logo-img {
+  width: 160px;
+  height: 48px;
+  object-fit: contain;
+  object-position: left center;
+  display: block;
+}
 
 /* Links */
 .navbar-links {
@@ -215,4 +215,8 @@
 @media (max-width: 600px) {
   .navbar-inner { padding: 0 var(--spacing-md); }
   .navbar-avatar { display: none; }
+  .navbar-logo-img {
+    width: 126px;
+    height: 42px;
+  }
 }
