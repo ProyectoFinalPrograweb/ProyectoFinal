@@ -10,6 +10,7 @@ import ProfilePage from './pages/ProfilePage'
 import AdminPage from './pages/AdminPage'
 import ModeratorPage from './pages/ModeratorPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import ResetPassword from './pages/ResetPassword';
 
 export default function App() {
   return (
@@ -23,14 +24,15 @@ export default function App() {
             <>
               <Navbar />
               <Routes>
-                <Route path="/"           element={<HomePage />} />
-                <Route path="/explorar"   element={<ExplorarPage />} />
-                <Route path="/mi-lista"   element={<ProtectedRoute><MyListPage /></ProtectedRoute>} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/explorar" element={<ExplorarPage />} />
+                <Route path="/mi-lista" element={<ProtectedRoute><MyListPage /></ProtectedRoute>} />
                 <Route path="/pelicula/:id" element={<MovieDetailPage />} />
-                <Route path="/perfil"     element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-                <Route path="/moderador"  element={<ProtectedRoute roles={['Administrador', 'Moderador']}><ModeratorPage /></ProtectedRoute>} />
-                <Route path="/admin"      element={<ProtectedRoute roles={['Administrador']}><AdminPage /></ProtectedRoute>} />
-                <Route path="*"           element={<Navigate to="/" replace />} />
+                <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+                <Route path="/moderador" element={<ProtectedRoute roles={['Administrador', 'Moderador']}><ModeratorPage /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute roles={['Administrador']}><AdminPage /></ProtectedRoute>} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
               </Routes>
             </>
           }
