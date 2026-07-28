@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Laravel\Socialite\Facades\Socialite;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -59,6 +61,63 @@ class AuthController extends Controller
         ]);
     }
 
+    public function redirectToProvider(string $provider)
+    {
+        if (! $this->socialProviderIsConfigured($provider)) {
+            return $this->redirectToFrontendWithError("El acceso con {$provider} aun no esta configurado.");
+        }
+
+        return Socialite::driver($provider)
+            ->stateless()
+            ->redirect();
+    }
+
+    public function handleProviderCallback(string $provider)
+    {
+        if (! $this->socialProviderIsConfigured($provider)) {
+            return $this->redirectToFrontendWithError("El acceso con {$provider} aun no esta configurado.");
+        }
+
+        try {
+            $socialUser = Socialite::driver($provider)->stateless()->user();
+        } catch (Throwable) {
+            return $this->redirectToFrontendWithError('No se pudo validar la cuenta social. Intentalo de nuevo.');
+        }
+
+        if (! $socialUser->getEmail()) {
+            return $this->redirectToFrontendWithError('La cuenta social no compartio un correo electronico.');
+        }
+
+        $role = Role::where('nombre', 'Cinefilo')->firstOrFail();
+        $user = User::firstOrCreate(
+            ['email' => $socialUser->getEmail()],
+            [
+                'name' => $socialUser->getName() ?: $socialUser->getNickname() ?: 'Usuario Cinema ITO',
+                'password' => Hash::make(Str::random(32)),
+                'role_id' => $role->id,
+            ]
+        );
+
+        $updates = [];
+        if (! $user->avatar && $socialUser->getAvatar()) {
+            $updates['avatar'] = $socialUser->getAvatar();
+        }
+        if (! $user->role_id) {
+            $updates['role_id'] = $role->id;
+        }
+        if ($updates) {
+            $user->update($updates);
+        }
+
+        $user->load('role');
+        $payload = base64_encode(json_encode(UserResource::make($user)->resolve()));
+        $token = $user->createToken($provider)->plainTextToken;
+
+        return redirect()->away(
+            $this->frontendUrl('/login?social_token=' . urlencode($token) . '&social_user=' . urlencode($payload))
+        );
+    }
+
     public function me(Request $request): JsonResponse
     {
         return response()->json([
@@ -73,6 +132,23 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Sesion cerrada correctamente.',
         ]);
+    }
+
+    private function socialProviderIsConfigured(string $provider): bool
+    {
+        return filled(config("services.{$provider}.client_id"))
+            && filled(config("services.{$provider}.client_secret"))
+            && filled(config("services.{$provider}.redirect"));
+    }
+
+    private function redirectToFrontendWithError(string $message)
+    {
+        return redirect()->away($this->frontendUrl('/login?oauth_error=' . urlencode($message)));
+    }
+
+    private function frontendUrl(string $path = ''): string
+    {
+        return rtrim((string) env('FRONTEND_URL', config('app.url')), '/') . $path;
     }
 
     public function updateProfile(UpdateProfileRequest $request): JsonResponse

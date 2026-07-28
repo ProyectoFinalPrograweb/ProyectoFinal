@@ -216,6 +216,29 @@ Credenciales de prueba:
 | Cinefilo | user@cinemaito.com | Usuario123! |
 | Developer/Evaluador | developer@cinemaito.com | Developer123! |
 
+## Login social
+
+El proyecto incluye inicio de sesion con Google y Facebook usando Laravel Socialite. Para activarlo en el VPS se deben crear las aplicaciones OAuth y llenar estas variables en `backend/.env`:
+
+```env
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=https://srv1829255.hstgr.cloud/api/auth/google/callback
+
+FACEBOOK_CLIENT_ID=
+FACEBOOK_CLIENT_SECRET=
+FACEBOOK_REDIRECT_URI=https://srv1829255.hstgr.cloud/api/auth/facebook/callback
+```
+
+URLs que deben registrarse en las consolas OAuth:
+
+```text
+Google:   https://srv1829255.hstgr.cloud/api/auth/google/callback
+Facebook: https://srv1829255.hstgr.cloud/api/auth/facebook/callback
+```
+
+Si esas credenciales no estan configuradas, los botones regresan al login con un mensaje claro para evitar errores silenciosos.
+
 ## Repositorio
 
 Repositorio de GitHub:

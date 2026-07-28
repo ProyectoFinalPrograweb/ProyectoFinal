@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { API_URL, saveSession } from '../services/api';
 import './LoginPage.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [tab, setTab] = useState('login');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,6 +24,28 @@ export default function LoginPage() {
   ];
 
   const firstError = name => fieldErrors[name]?.[0];
+
+  useEffect(() => {
+    const socialToken = searchParams.get('social_token');
+    const socialUser = searchParams.get('social_user');
+    const oauthError = searchParams.get('oauth_error');
+
+    if (oauthError) {
+      setFormMessage({ type: 'error', text: oauthError });
+      return;
+    }
+
+    if (!socialToken || !socialUser) return;
+
+    try {
+      const user = JSON.parse(atob(socialUser));
+      saveSession(user, socialToken);
+      setFormMessage({ type: 'success', text: 'Inicio de sesion social correcto.' });
+      navigate('/', { replace: true });
+    } catch {
+      setFormMessage({ type: 'error', text: 'No se pudo completar el inicio de sesion social.' });
+    }
+  }, [navigate, searchParams]);
 
   const requestJson = async (path, body) => {
     const response = await fetch(`${API_URL}${path}`, {
@@ -108,6 +131,10 @@ export default function LoginPage() {
     setTab(nextTab);
     setFormMessage(null);
     setFieldErrors({});
+  };
+
+  const handleSocialLogin = provider => {
+    window.location.href = `${API_URL}/auth/${provider}/redirect`;
   };
 
   return (
@@ -212,10 +239,18 @@ export default function LoginPage() {
               </div>
 
               <div className="login-social">
-                <button type="button" className="btn btn-outline social-btn">
+                <button
+                  type="button"
+                  className="btn btn-outline social-btn"
+                  onClick={() => handleSocialLogin('google')}
+                >
                   <span>G</span> Google
                 </button>
-                <button type="button" className="btn btn-outline social-btn">
+                <button
+                  type="button"
+                  className="btn btn-outline social-btn"
+                  onClick={() => handleSocialLogin('facebook')}
+                >
                   <span>f</span> Facebook
                 </button>
               </div>

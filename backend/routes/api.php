@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/auth/{provider}/redirect', [AuthController::class, 'redirectToProvider'])->whereIn('provider', ['google', 'facebook']);
+Route::get('/auth/{provider}/callback', [AuthController::class, 'handleProviderCallback'])->whereIn('provider', ['google', 'facebook']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
@@ -36,5 +38,4 @@ Route::get('/peliculas-api/detalle/{id}', [CinemaController::class, 'obtenerDeta
 Route::middleware('auth:sanctum')->post('/peliculas/importar-favorito', [CinemaController::class, 'importarYFavorito']);
 Route::middleware(['auth:sanctum', 'role:Administrador'])->post('/admin/peliculas/sincronizar-posters', [CinemaController::class, 'sincronizarPosters']);
 Route::middleware(['auth:sanctum', 'role:Administrador'])->put('/admin/users/{user}/role', [CinemaController::class, 'updateUserRole']);
-
 
