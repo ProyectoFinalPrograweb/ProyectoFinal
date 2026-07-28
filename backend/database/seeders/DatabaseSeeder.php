@@ -167,5 +167,7 @@ class DatabaseSeeder extends Seeder
                 'pelicula_id' => $peliculas[$favorito['pelicula']]->id,
             ]);
         }
+
+        $this->call(MexicanMoviesCatalogSeeder::class);
     }
 }
