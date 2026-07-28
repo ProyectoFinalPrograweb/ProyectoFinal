@@ -36,8 +36,8 @@
 }
 .navbar-logo:hover { opacity: 0.85; }
 .navbar-logo-img {
-  width: 160px;
-  height: 48px;
+  width: 194px;
+  height: 60px;
   object-fit: contain;
   object-position: left center;
   display: block;
@@ -216,7 +216,7 @@
   .navbar-inner { padding: 0 var(--spacing-md); }
   .navbar-avatar { display: none; }
   .navbar-logo-img {
-    width: 126px;
-    height: 42px;
+    width: 152px;
+    height: 52px;
   }
 }
