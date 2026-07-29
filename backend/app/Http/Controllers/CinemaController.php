@@ -27,6 +27,7 @@ use App\Notifications\ReviewRepliedNotification;
 use App\Notifications\UserFollowedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class CinemaController extends Controller
 {
@@ -78,11 +79,22 @@ class CinemaController extends Controller
 
     public function pelicula(Request $request, Pelicula $pelicula): JsonResponse
     {
+        $viewer = $this->optionalViewer($request);
+
         $pelicula->load(['genero', 'resenas.usuario', 'resenas.respuestas.usuario'])
             ->loadAvg('resenas as calificacion_promedio', 'calificacion')
             ->loadCount(['resenas', 'marcadosPorUsuarios as favoritos_count']);
 
-        $this->decorateResenas($pelicula->resenas, $request->user());
+        if ($viewer) {
+            $favorito = Favorito::where('usuario_id', $viewer->id)
+                ->where('pelicula_id', $pelicula->id)
+                ->first();
+
+            $pelicula->en_mi_lista = (bool) $favorito;
+            $pelicula->vista = (bool) $favorito?->vista;
+        }
+
+        $this->decorateResenas($pelicula->resenas, $viewer);
 
         $relacionadas = Pelicula::with('genero')
             ->withAvg('resenas as calificacion_promedio', 'calificacion')
@@ -124,6 +136,8 @@ class CinemaController extends Controller
 
     public function perfilUsuario(Request $request, User $user): JsonResponse
     {
+        $viewer = $this->optionalViewer($request);
+
         $user->load('role')->loadCount(['seguidores', 'seguidos', 'resenas']);
 
         $resenas = $user->resenas()
@@ -131,11 +145,11 @@ class CinemaController extends Controller
             ->latest()
             ->get();
 
-        $this->decorateResenas($resenas, $request->user());
+        $this->decorateResenas($resenas, $viewer);
 
         $siguiendo = false;
-        if ($request->user()) {
-            $siguiendo = UserFollow::where('follower_id', $request->user()->id)
+        if ($viewer) {
+            $siguiendo = UserFollow::where('follower_id', $viewer->id)
                 ->where('followed_id', $user->id)
                 ->exists();
         }
@@ -144,7 +158,7 @@ class CinemaController extends Controller
             'data' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'email' => $request->user()?->id === $user->id ? $user->email : null,
+                'email' => $viewer?->id === $user->id ? $user->email : null,
                 'avatar' => $user->avatar,
                 'role' => $user->role?->nombre,
                 'iniciales' => collect(explode(' ', $user->name))->map(fn ($part) => $part[0] ?? '')->take(2)->join(''),
@@ -152,7 +166,7 @@ class CinemaController extends Controller
                 'seguidos_count' => $user->seguidos_count,
                 'resenas_count' => $user->resenas_count,
                 'siguiendo' => $siguiendo,
-                'es_mi_perfil' => $request->user()?->id === $user->id,
+                'es_mi_perfil' => $viewer?->id === $user->id,
                 'resenas' => ResenaResource::collection($resenas),
             ],
         ]);
@@ -434,6 +448,22 @@ class CinemaController extends Controller
         ]);
     }
 
+    public function destroyUser(Request $request, User $user): JsonResponse
+    {
+        if ($request->user()->id === $user->id) {
+            return response()->json([
+                'message' => 'No puedes eliminar tu propia cuenta desde el panel admin.',
+            ], 422);
+        }
+
+        $user->tokens()->delete();
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Usuario eliminado correctamente.',
+        ]);
+    }
+
     public function updateUserRole(UpdateUserRoleRequest $request, User $user): JsonResponse
     {
         $user->update($request->validated());
@@ -577,5 +607,20 @@ class CinemaController extends Controller
                 ? $resena->reacciones()->where('usuario_id', $viewer->id)->value('tipo')
                 : null;
         });
+    }
+
+    private function optionalViewer(Request $request): ?User
+    {
+        $token = $request->bearerToken();
+
+        if (! $token) {
+            return null;
+        }
+
+        $accessToken = PersonalAccessToken::findToken($token);
+
+        return $accessToken?->tokenable instanceof User
+            ? $accessToken->tokenable
+            : null;
     }
 }

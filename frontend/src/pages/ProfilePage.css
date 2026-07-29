@@ -328,6 +328,37 @@
   cursor: pointer;
 }
 
+.profile-user-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.profile-user-row:hover span {
+  color: var(--color-primary);
+}
+
+.profile-user-row img {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-user-row span {
+  font-weight: 800;
+  transition: var(--transition-fast);
+}
+
 .avatar-preview-row {
   display: flex;
   align-items: center;

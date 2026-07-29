@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import MovieCard from '../components/MovieCard';
 import Footer from '../components/Footer';
+import StarRating from '../components/StarRating';
 import { apiRequest } from '../services/api';
 import './HomePage.css';
 
@@ -14,7 +15,7 @@ export default function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      apiRequest('/peliculas?per_page=20&orden=calificacion'),
+      apiRequest('/peliculas?per_page=50&orden=calificacion'),
       apiRequest('/generos'),
     ])
       .then(([peliculasResponse, generosResponse]) => {
@@ -30,7 +31,16 @@ export default function HomePage() {
     [peliculas]
   );
   const masVistas = [...peliculas].sort((a, b) => b.vistas - a.vistas).slice(0, 8);
-  const mejorCalif = [...peliculas].sort((a, b) => b.calificacion_promedio - a.calificacion_promedio).slice(0, 8);
+  const rankingMejores = [...peliculas]
+    .filter(p => Number(p.resenas_count || 0) > 0)
+    .sort((a, b) => {
+      const ratingDiff = Number(b.calificacion_promedio || 0) - Number(a.calificacion_promedio || 0);
+
+      if (ratingDiff !== 0) return ratingDiff;
+
+      return Number(b.resenas_count || 0) - Number(a.resenas_count || 0);
+    })
+    .slice(0, 10);
   const recientes = peliculas.filter(p => p.anio >= 2021).slice(0, 8);
 
   if (loading) {
@@ -65,12 +75,33 @@ export default function HomePage() {
 
         <section className="home-section animate-fade-in delay-200">
           <div className="section-header">
-            <h2>Mejor calificadas</h2>
-            <Link to="/explorar" className="ver-todas">Ver todas</Link>
+            <div>
+              <h2>Ranking de mejores peliculas</h2>
+              <p className="section-subtitle">Top basado en las estrellas que dejaron los usuarios en sus resenas.</p>
+            </div>
+            <Link to="/explorar?orden=calificacion" className="ver-todas">Ver ranking completo</Link>
           </div>
-          <div className="scroll-row">
-            {mejorCalif.map(p => <MovieCard key={p.id} pelicula={p} />)}
-          </div>
+          {rankingMejores.length === 0 ? (
+            <p className="ranking-empty">Aun no hay peliculas calificadas por usuarios.</p>
+          ) : (
+            <div className="ranking-grid">
+              {rankingMejores.map((p, index) => (
+                <Link key={p.id} to={`/pelicula/${p.id}`} className="ranking-card">
+                  <span className="ranking-position">#{index + 1}</span>
+                  <img src={p.imagen} alt={p.titulo} onError={e => { e.target.src = '/movie_posters.png'; }} />
+                  <div className="ranking-info">
+                    <h3>{p.titulo}</h3>
+                    <p>{p.anio} - {p.genero}</p>
+                    <div className="ranking-rating-row">
+                      <StarRating rating={Number(p.calificacion_promedio || 0) / 2} max={5} size="sm" />
+                      <span>{Number(p.calificacion_promedio || 0).toFixed(1)}</span>
+                    </div>
+                    <small>{p.resenas_count} {p.resenas_count === 1 ? 'resena' : 'resenas'} de usuarios</small>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
 
         {recientes.length > 0 && (

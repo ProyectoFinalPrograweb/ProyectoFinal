@@ -47,4 +47,9 @@ return [
         'redirect' => env('FACEBOOK_REDIRECT_URI'),
     ],
 
+    'green_api' => [
+        'id_instance' => env('GREEN_API_ID_INSTANCE'),
+        'api_token_instance' => env('GREEN_API_TOKEN_INSTANCE'),
+    ],
+
 ];

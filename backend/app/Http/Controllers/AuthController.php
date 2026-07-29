@@ -15,7 +15,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
@@ -35,6 +37,8 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'role_id' => $role->id,
         ])->load('role');
+
+        $this->sendWelcomeEmail($user);
 
         return response()->json([
             'message' => 'Cuenta creada correctamente.',
@@ -109,14 +113,18 @@ class AuthController extends Controller
         }
 
         $role = Role::where('nombre', 'Cinefilo')->firstOrFail();
-        $user = User::firstOrCreate(
-            ['email' => $socialUser->getEmail()],
-            [
+        $user = User::where('email', $socialUser->getEmail())->first();
+        $createdFromSocial = false;
+
+        if (! $user) {
+            $user = User::create([
+                'email' => $socialUser->getEmail(),
                 'name' => $socialUser->getName() ?: $socialUser->getNickname() ?: 'Usuario Cinema ITO',
                 'password' => Hash::make(Str::random(32)),
                 'role_id' => $role->id,
-            ]
-        );
+            ]);
+            $createdFromSocial = true;
+        }
 
         $updates = [];
         if (! $user->avatar && $socialUser->getAvatar()) {
@@ -127,6 +135,10 @@ class AuthController extends Controller
         }
         if ($updates) {
             $user->update($updates);
+        }
+
+        if ($createdFromSocial) {
+            $this->sendWelcomeEmail($user, ucfirst($provider));
         }
 
         $user->load('role');
@@ -203,7 +215,29 @@ class AuthController extends Controller
 
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
-        $status = Password::sendResetLink($request->validated());
+        $validated = $request->validated();
+        $method = $validated['method'] ?? 'email';
+
+        if ($method === 'whatsapp') {
+            $user = User::where('email', $validated['email'])->firstOrFail();
+            $resetToken = Password::createToken($user);
+            $resetUrl = $this->frontendUrl('/reset-password?token=' . urlencode($resetToken) . '&email=' . urlencode($user->email));
+            $telefono = '521' . $validated['telefono'];
+
+            $sent = $this->sendPasswordResetWhatsapp($telefono, $user->name, $resetUrl);
+
+            if (! $sent) {
+                return response()->json([
+                    'message' => 'No se pudo enviar el enlace por WhatsApp. Verifica que la instancia de GREEN-API este autorizada y vuelve a intentar.',
+                ], 500);
+            }
+
+            return response()->json([
+                'message' => 'Enlace de recuperacion enviado por WhatsApp.',
+            ]);
+        }
+
+        $status = Password::sendResetLink(['email' => $validated['email']]);
 
         if ($status !== Password::RESET_LINK_SENT) {
             return response()->json([
@@ -212,8 +246,66 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'Enlace de recuperacion enviado. En local se escribe en storage/logs/laravel.log.',
+            'message' => 'Enlace de recuperacion enviado al correo.',
         ]);
+    }
+
+    private function sendWelcomeEmail(User $user, ?string $provider = null): void
+    {
+        try {
+            $providerLine = $provider
+                ? "\n\nEsta cuenta fue creada usando inicio de sesion con {$provider}."
+                : '';
+
+            Mail::raw(
+                "Hola {$user->name},\n\nTu cuenta de Cinema ITO se creo correctamente.{$providerLine}\n\nYa puedes iniciar sesion, guardar peliculas, escribir resenas y seguir explorando el cine mexicano.\n\nSi no creaste esta cuenta, puedes ignorar este mensaje.",
+                function ($message) use ($user): void {
+                    $message
+                        ->to($user->email, $user->name)
+                        ->subject('Tu cuenta de Cinema ITO fue creada');
+                }
+            );
+        } catch (Throwable $exception) {
+            Log::warning('Welcome email could not be sent.', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'message' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    private function sendPasswordResetWhatsapp(string $telefono, string $name, string $resetUrl): bool
+    {
+        $idInstance = config('services.green_api.id_instance');
+        $apiTokenInstance = config('services.green_api.api_token_instance');
+
+        if (! $idInstance || ! $apiTokenInstance) {
+            Log::warning('GREEN-API WhatsApp is not configured.');
+
+            return false;
+        }
+
+        try {
+            $response = Http::post("https://api.green-api.com/waInstance{$idInstance}/sendMessage/{$apiTokenInstance}", [
+                    'chatId' => $telefono . '@c.us',
+                    'message' => "Cinema ITO\nHola {$name}, recibimos una solicitud para recuperar tu contrasena.\n\nAbre este enlace para crear una nueva contrasena:\n{$resetUrl}\n\nSi no fuiste tu, ignora este mensaje.",
+                ]);
+
+            if ($response->failed()) {
+                Log::error('GREEN-API WhatsApp reset failed.', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+
+            return $response->successful() && (bool) $response->json('idMessage');
+        } catch (Throwable $exception) {
+            Log::error('GREEN-API WhatsApp reset exception.', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     public function resetPassword(ResetPasswordRequest $request): JsonResponse

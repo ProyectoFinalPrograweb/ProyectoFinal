@@ -161,6 +161,7 @@ export default function AdminPage() {
       pelicula: `/admin/peliculas/${modal.item.id}`,
       genero: `/admin/generos/${modal.item.id}`,
       resena: `/admin/resenas/${modal.item.id}`,
+      usuario: `/admin/users/${modal.item.id}`,
     };
     const response = await apiRequest(paths[modal.entity], { method: 'DELETE' });
     setMessage({ type: 'success', text: response.message });
@@ -257,7 +258,19 @@ export default function AdminPage() {
                     <td><span className="badge badge-primary">{u.rol}</span></td>
                     <td><span className="table-text">{u.peliculas}</span></td>
                     <td><span className="estado-badge activo">Activo</span></td>
-                    <td><div className="admin-actions"><button className="admin-action-btn edit" onClick={() => openRoleModal(u)}>Cambiar rol</button></div></td>
+                    <td>
+                      <div className="admin-actions">
+                        <button className="admin-action-btn edit" onClick={() => openRoleModal(u)}>Cambiar rol</button>
+                        <button
+                          className="admin-action-btn delete"
+                          onClick={() => openDeleteModal('usuario', u)}
+                          disabled={u.id === user?.id}
+                          title={u.id === user?.id ? 'No puedes eliminar tu propia cuenta' : 'Eliminar usuario'}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -391,7 +404,7 @@ export default function AdminPage() {
             {modal.type === 'delete' && (
               <div className="admin-modal-form">
                 <h3>Confirmar eliminacion</h3>
-                <p>Esta accion eliminara el registro seleccionado. No se usa confirm nativo.</p>
+                <p>Esta accion eliminara {modal.entity === 'usuario' ? `al usuario ${modal.item.nombre}` : 'el registro seleccionado'} y sus datos relacionados.</p>
                 <div className="admin-modal-actions"><button type="button" className="btn btn-outline" onClick={closeModal}>Cancelar</button><button type="button" className="btn btn-primary" onClick={confirmDelete}>Eliminar</button></div>
               </div>
             )}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import StarRating from '../components/StarRating';
 import MovieCard from '../components/MovieCard';
 import Footer from '../components/Footer';
@@ -9,6 +9,7 @@ import './MovieDetailPage.css';
 export default function MovieDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [pelicula, setPelicula] = useState(null);
   const [enLista, setEnLista] = useState(false);
   const [miCalif, setMiCalif] = useState(0);
@@ -24,7 +25,7 @@ export default function MovieDetailPage() {
     apiRequest(`/peliculas/${id}`)
       .then(response => {
         setPelicula(response.data);
-        setEnLista(false);
+        setEnLista(Boolean(response.data?.enMiLista));
       })
       .catch(() => setMessage({ type: 'error', text: 'No se pudo cargar la pelicula.' }))
       .finally(() => setLoading(false));
@@ -33,6 +34,17 @@ export default function MovieDetailPage() {
   useEffect(() => {
     loadPelicula();
   }, [id]);
+
+  useEffect(() => {
+    if (loading || !pelicula || !location.hash.startsWith('#resena-')) return;
+
+    setTab('resenas');
+
+    window.requestAnimationFrame(() => {
+      const target = document.querySelector(location.hash);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }, [loading, pelicula, location.hash]);
 
   const handleToggleFavorito = async () => {
     if (!user) {
@@ -59,11 +71,23 @@ export default function MovieDetailPage() {
       return;
     }
 
+    const comentarioLimpio = comentario.trim();
+
+    if (miCalif < 1) {
+      setMessage({ type: 'error', text: 'Selecciona una calificacion antes de publicar tu resena.' });
+      return;
+    }
+
+    if (comentarioLimpio.length < 5) {
+      setMessage({ type: 'error', text: 'Escribe al menos 5 caracteres en tu resena.' });
+      return;
+    }
+
     try {
       await apiRequest(`/peliculas/${id}/resenas`, {
         method: 'POST',
         body: JSON.stringify({
-          comentario,
+          comentario: comentarioLimpio,
           calificacion: miCalif,
         }),
       });
@@ -256,7 +280,7 @@ export default function MovieDetailPage() {
                   <p className="no-resenas">Se el primero en escribir una resena.</p>
                 ) : (
                   peliculaResenas.map(r => (
-                    <div key={r.id} className="resena-card">
+                    <div key={r.id} id={`resena-${r.id}`} className="resena-card">
                       <div className="resena-header">
                         <Link to={`/usuarios/${r.usuario.id}`} className="resena-avatar">
                           {r.usuario.avatar ? <img src={r.usuario.avatar} alt={r.usuario.nombre} /> : r.usuario.iniciales}

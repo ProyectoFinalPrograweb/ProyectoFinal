@@ -276,6 +276,13 @@
   line-height: 1.4;
 }
 
+.forgot-help {
+  color: var(--color-text-dim);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  margin: 7px 0 0;
+}
+
 .field-error,
 .form-message.error {
   color: #ff8aa8;

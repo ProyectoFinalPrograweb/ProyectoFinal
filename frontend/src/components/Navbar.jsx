@@ -65,6 +65,37 @@ export default function Navbar() {
     } catch {}
   };
 
+  const notificationPath = (notification) => {
+    const data = notification.data || {};
+
+    if (data.type === 'user_followed' && data.follower_id) {
+      return `/usuarios/${data.follower_id}`;
+    }
+
+    if ((data.type === 'review_liked' || data.type === 'review_replied') && data.pelicula_id) {
+      return `/pelicula/${data.pelicula_id}${data.resena_id ? `#resena-${data.resena_id}` : ''}`;
+    }
+
+    if (data.liker_id || data.replier_id || data.follower_id) {
+      return `/usuarios/${data.liker_id || data.replier_id || data.follower_id}`;
+    }
+
+    return null;
+  };
+
+  const openNotification = async (notification) => {
+    if (!notification.read_at) {
+      await markAsRead(notification.id);
+    }
+
+    const path = notificationPath(notification);
+    setNotificationsOpen(false);
+
+    if (path) {
+      navigate(path);
+    }
+  };
+
   const markAllAsRead = async () => {
     try {
       await apiRequest('/notifications/read-all', { method: 'POST' });
@@ -155,7 +186,19 @@ export default function Navbar() {
                         <div className="no-notifications">No tienes notificaciones.</div>
                       ) : (
                         notifications.map(notification => (
-                          <div key={notification.id} className={`notification-item ${!notification.read_at ? 'unread' : ''}`} onClick={() => !notification.read_at && markAsRead(notification.id)}>
+                          <div
+                            key={notification.id}
+                            className={`notification-item ${!notification.read_at ? 'unread' : ''}`}
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => openNotification(notification)}
+                            onKeyDown={event => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                openNotification(notification);
+                              }
+                            }}
+                          >
                             <div className="notification-avatar">
                               {notification.data.follower_avatar || notification.data.liker_avatar || notification.data.replier_avatar ? (
                                 <img src={notification.data.follower_avatar || notification.data.liker_avatar || notification.data.replier_avatar} alt="avatar" />

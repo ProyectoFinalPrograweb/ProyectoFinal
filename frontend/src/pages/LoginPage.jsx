@@ -82,8 +82,13 @@ export default function LoginPage() {
       setFormMessage({ type: 'success', text: data.message });
       navigate('/');
     } catch (error) {
-      setFieldErrors(error.errors || {});
-      setFormMessage({ type: 'error', text: error.message });
+      const errors = error.errors || {};
+      setFieldErrors(errors);
+      setFormMessage(
+        Object.keys(errors).length
+          ? null
+          : { type: 'error', text: error.message }
+      );
     } finally {
       setLoading(false);
     }
@@ -105,8 +110,13 @@ export default function LoginPage() {
       setFormMessage({ type: 'success', text: data.message });
       navigate('/');
     } catch (error) {
-      setFieldErrors(error.errors || {});
-      setFormMessage({ type: 'error', text: error.message });
+      const errors = error.errors || {};
+      setFieldErrors(errors);
+      setFormMessage(
+        Object.keys(errors).length
+          ? null
+          : { type: 'error', text: error.message }
+      );
     } finally {
       setLoading(false);
     }
@@ -119,20 +129,21 @@ export default function LoginPage() {
     setFieldErrors({});
 
     try {
-      const path = forgotMethod === 'whatsapp' ? '/forgot-password-whatsapp' : '/forgot-password';
-      const payload = forgotMethod === 'whatsapp'
-        ? { telefono: forgotData.telefono }
-        : { email: forgotData.email };
-      const data = await requestJson(path, payload);
+      const payload = {
+        email: forgotData.email,
+        method: forgotMethod,
+        ...(forgotMethod === 'whatsapp' ? { telefono: forgotData.telefono.replace(/\D/g, '') } : {}),
+      };
+      const data = await requestJson('/forgot-password', payload);
       setFormMessage({ type: 'success', text: data.message });
     } catch (error) {
-      setFieldErrors(error.errors || {});
-      setFormMessage({
-        type: 'error',
-        text: forgotMethod === 'whatsapp' && error.message === 'No se pudo completar la solicitud.'
-          ? 'La recuperacion por WhatsApp aun no esta disponible en el backend.'
-          : error.message,
-      });
+      const errors = error.errors || {};
+      setFieldErrors(errors);
+      setFormMessage(
+        Object.keys(errors).length
+          ? null
+          : { type: 'error', text: error.message }
+      );
     } finally {
       setLoading(false);
     }
@@ -265,7 +276,24 @@ export default function LoginPage() {
             <form className="login-form animate-fade-in" onSubmit={handleForgotPassword}>
               <div className="login-greeting">
                 <h2>Recuperar contrasena</h2>
-                <p>Elige como quieres recibir el enlace para restablecer tu acceso.</p>
+                <p>Escribe el correo de tu cuenta y elige como quieres recibir el enlace.</p>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Correo electronico asociado</label>
+                <div className="input-icon-wrap">
+                  <span className="icon" style={{display:'flex',alignItems:'center'}}><Mail size={18} color="#888" /></span>
+                  <input
+                    id="forgot-email"
+                    type="email"
+                    className="form-input"
+                    placeholder="tu@correo.com"
+                    value={forgotData.email}
+                    onChange={e => setForgotData({ ...forgotData, email: e.target.value })}
+                    required
+                  />
+                </div>
+                {firstError('email') && <p className="field-error">{firstError('email')}</p>}
               </div>
 
               <div className="forgot-methods" role="tablist" aria-label="Metodo de recuperacion">
@@ -293,24 +321,7 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {forgotMethod === 'email' ? (
-                <div className="form-group">
-                  <label className="form-label">Correo electronico</label>
-                  <div className="input-icon-wrap">
-                    <span className="icon" style={{display:'flex',alignItems:'center'}}><Mail size={18} color="#888" /></span>
-                    <input
-                      id="forgot-email"
-                      type="email"
-                      className="form-input"
-                      placeholder="tu@correo.com"
-                      value={forgotData.email}
-                      onChange={e => setForgotData({ ...forgotData, email: e.target.value })}
-                      required
-                    />
-                  </div>
-                  {firstError('email') && <p className="field-error">{firstError('email')}</p>}
-                </div>
-              ) : (
+              {forgotMethod === 'whatsapp' && (
                 <div className="form-group">
                   <label className="form-label">Numero de WhatsApp</label>
                   <div className="input-icon-wrap">
@@ -318,13 +329,16 @@ export default function LoginPage() {
                     <input
                       id="forgot-telefono"
                       type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
                       className="form-input"
-                      placeholder="+52 951 000 0000"
+                      placeholder="9510000000"
                       value={forgotData.telefono}
-                      onChange={e => setForgotData({ ...forgotData, telefono: e.target.value })}
+                      onChange={e => setForgotData({ ...forgotData, telefono: e.target.value.replace(/\D/g, '').slice(0, 10) })}
                       required
                     />
                   </div>
+                  <p className="forgot-help">Escribe 10 digitos. Se enviara como WhatsApp de Mexico (+521).</p>
                   {firstError('telefono') && <p className="field-error">{firstError('telefono')}</p>}
                 </div>
               )}

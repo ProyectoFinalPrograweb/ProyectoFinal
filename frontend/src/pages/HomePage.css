@@ -50,6 +50,112 @@
   margin-bottom: var(--spacing-2xl);
 }
 
+.section-subtitle {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
+.ranking-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-md);
+}
+
+.ranking-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: var(--spacing-md);
+  min-height: 126px;
+  padding: var(--spacing-md);
+  color: var(--color-text);
+  text-decoration: none;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-normal);
+}
+
+.ranking-card:hover {
+  border-color: rgba(233,30,140,0.42);
+  box-shadow: 0 8px 28px rgba(233,30,140,0.12);
+  transform: translateY(-2px);
+}
+
+.ranking-card img {
+  width: 76px;
+  height: 108px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+}
+
+.ranking-position {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+  min-width: 34px;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: var(--shadow-magenta);
+}
+
+.ranking-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ranking-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.ranking-info p,
+.ranking-info small {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.ranking-rating-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.ranking-rating-row span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(245,158,11,0.16);
+  color: #f59e0b;
+  font-weight: 900;
+  font-size: 0.78rem;
+}
+
+.ranking-empty {
+  padding: var(--spacing-lg);
+  color: var(--color-text-muted);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
 /* CTA Banner */
 .home-cta {
   display: flex;
@@ -125,4 +231,5 @@
   .home-cta { flex-direction: column; }
   .home-cta::before { display: none; }
   .home-cta-stats { width: 100%; justify-content: space-around; }
+  .ranking-grid { grid-template-columns: 1fr; }
 }

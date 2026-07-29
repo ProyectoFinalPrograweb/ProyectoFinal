@@ -70,6 +70,11 @@ export default function PublicProfilePage() {
     setLoadingUsers(false);
   };
 
+  const openUserProfile = (userId) => {
+    setUsersModalOpen(false);
+    navigate(`/usuarios/${userId}`);
+  };
+
   if (loading) {
     return <div className="page-wrapper"><main className="profile-main container"><p>Cargando perfil...</p></main></div>;
   }
@@ -160,10 +165,10 @@ export default function PublicProfilePage() {
                 <p style={{color: '#888'}}>No hay usuarios para mostrar.</p>
               ) : (
                 usersList.map(u => (
-                  <div key={u.id} style={{display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)'}}>
-                    <img src={u.avatar || '/default_avatar.png'} alt={u.name} style={{width: '40px', height: '40px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover'}} onError={e => { e.target.src = '/movie_posters.png'; }} />
-                    <span style={{fontWeight: 'bold'}}>{u.name}</span>
-                  </div>
+                  <button key={u.id} type="button" className="profile-user-row" onClick={() => openUserProfile(u.id)}>
+                    <img src={u.avatar || '/default_avatar.png'} alt={u.name} onError={e => { e.target.src = '/movie_posters.png'; }} />
+                    <span>{u.name}</span>
+                  </button>
                 ))
               )}
             </div>
