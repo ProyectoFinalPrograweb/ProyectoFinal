@@ -1,393 +1,177 @@
 # Cinema ITO
 
-> Estado actual: Laravel + React + MySQL, desplegado en VPS, con Sanctum, roles, rutas protegidas, Form Requests, API Resources, panel Admin, panel Moderador, Bruno y respaldo SQL.
+Aplicacion web full stack para descubrir, guardar, comentar y calificar peliculas, con enfoque en cine mexicano y comunidad universitaria del ITO.
+
+> Estado actual: Laravel + React + MySQL, API REST, autenticacion con Sanctum, roles, rutas protegidas, Form Requests, API Resources, panel de Administrador, panel de Moderador, perfiles publicos, seguidores, notificaciones, recuperacion de contrasena, login con Google, coleccion Bruno y despliegue en VPS con HTTPS.
 
 ## Integrantes
 
 - Valencia Borja Omar Rutilio
 - Angel Gabriel Antonio Mendez
 
-## Descripcion del proyecto
-
-Cinema ITO sera una plataforma web para registrar, comentar, calificar y recomendar peliculas mexicanas vistas por los usuarios. La idea principal es crear una comunidad donde cada usuario pueda compartir su opinion sobre peliculas mexicanas, descubrir nuevas recomendaciones y guardar las peliculas que le interesan.
-
-## Problematica que resuelve
-
-Actualmente muchas recomendaciones de peliculas mexicanas se pierden en conversaciones, redes sociales o listas personales. No siempre existe un espacio organizado donde los usuarios puedan registrar que peliculas mexicanas han visto, calificarlas, escribir una opinion y consultar comentarios de otras personas.
-
-Cinema ITO resuelve esta problematica centralizando la informacion en una plataforma colaborativa. El sistema permitira consultar peliculas mexicanas, publicar resenas, asignar calificaciones, guardar favoritas y facilitar la interaccion entre usuarios interesados en el cine mexicano.
-
-## Modulos principales del sistema
-
-El sistema tendra al menos las siguientes entidades o tablas relacionadas:
-
-### 1. Usuarios
-
-Almacena la informacion de las personas que usaran la plataforma.
-
-Campos principales:
-
-- `id`
-- `nombre`
-- `email`
-- `password`
-- `rol_id`
-- `created_at`
-- `updated_at`
-
-Relacion:
-
-- Un usuario pertenece a un rol.
-- Un usuario puede publicar muchas peliculas.
-- Un usuario puede escribir muchas resenas.
-- Un usuario puede guardar muchas peliculas favoritas.
-
-### 2. Roles
-
-Define los permisos o tipos de usuario dentro del sistema.
-
-Campos principales:
-
-- `id`
-- `nombre`
-- `descripcion`
-
-Relacion:
-
-- Un rol puede estar asignado a muchos usuarios.
-
-### 3. Peliculas
-
-Registra las peliculas mexicanas publicadas en la plataforma.
-
-Campos principales:
-
-- `id`
-- `titulo`
-- `director`
-- `anio`
-- `sinopsis`
-- `imagen`
-- `genero_id`
-- `usuario_id`
-- `created_at`
-- `updated_at`
-
-Relacion:
-
-- Una pelicula pertenece a un genero.
-- Una pelicula fue publicada por un usuario.
-- Una pelicula puede tener muchas resenas.
-- Una pelicula puede estar en favoritos de muchos usuarios.
-
-### 4. Generos
-
-Clasifica las peliculas por categoria.
-
-Campos principales:
-
-- `id`
-- `nombre`
-- `descripcion`
-
-Relacion:
-
-- Un genero puede tener muchas peliculas.
-
-### 5. Reseñas
-
-Guarda los comentarios y calificaciones que los usuarios hacen sobre las peliculas.
-
-Campos principales:
-
-- `id`
-- `usuario_id`
-- `pelicula_id`
-- `comentario`
-- `calificacion`
-- `created_at`
-- `updated_at`
-
-Relacion:
-
-- Una resena pertenece a un usuario.
-- Una resena pertenece a una pelicula.
-
-### 6. Favoritos
-
-Permite que los usuarios guarden peliculas que les gustaron o quieren ver despues.
-
-Campos principales:
-
-- `id`
-- `usuario_id`
-- `pelicula_id`
-- `created_at`
-
-Relacion:
-
-- Un usuario puede tener muchas peliculas favoritas.
-- Una pelicula puede ser marcada como favorita por muchos usuarios.
-
-## Roles de usuario
-
-### Administrador
-
-Puede gestionar todo el sistema:
-
-- Administrar usuarios.
-- Administrar roles.
-- Crear, editar y eliminar peliculas.
-- Administrar generos.
-- Revisar o eliminar resenas inapropiadas.
-
-### Moderador
-
-Puede apoyar en el control del contenido:
-
-- Revisar peliculas publicadas.
-- Revisar comentarios o resenas.
-- Ocultar o eliminar contenido inapropiado.
-
-### Usuario registrado
-
-Puede usar las funciones principales de la plataforma:
-
-- Registrarse e iniciar sesion.
-- Publicar peliculas mexicanas vistas.
-- Comentar peliculas.
-- Calificar peliculas.
-- Guardar peliculas favoritas.
-- Consultar recomendaciones y resenas de otros usuarios.
-
-## Relaciones principales
-
-```text
-roles 1 --- N usuarios
-usuarios 1 --- N peliculas
-generos 1 --- N peliculas
-usuarios 1 --- N resenas
-peliculas 1 --- N resenas
-usuarios N --- N peliculas mediante favoritos
-```
-
-## Base de datos local
-
-Motor requerido: MySQL.
-
-Nombre de la base de datos:
-
-```text
-cine_ito
-```
-
-Primero crear la base `cine_ito` en phpMyAdmin o importar directamente `backend/database/cine_ito_backup.sql`.
-
-Configuracion sugerida en `backend/.env`:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=cine_ito
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-Para crear las tablas y cargar datos de prueba desde Laravel:
-
-```bash
-cd backend
-php artisan migrate --seed
-```
-
-Tambien se incluye el respaldo SQL en:
-
-```text
-backend/database/cine_ito_backup.sql
-```
-
-Credenciales de prueba:
+## Enlaces
+
+| Recurso | URL |
+| --- | --- |
+| Proyecto en produccion | https://srv1829255.hstgr.cloud |
+| API base | https://srv1829255.hstgr.cloud/api |
+| Repositorio | https://github.com/ProyectoFinalPrograweb/ProyectoFinal |
+| GitHub Project | https://github.com/orgs/ProyectoFinalPrograweb/projects/1/views/1 |
+
+## Descripcion
+
+Cinema ITO centraliza recomendaciones, resenas y calificaciones de peliculas en una plataforma colaborativa. Los usuarios pueden crear una cuenta, iniciar sesion, guardar peliculas, marcar peliculas vistas o por ver, escribir resenas con estrellas, responder a otros usuarios, dar like o dislike a resenas y seguir perfiles.
+
+El sistema tambien incluye administracion por roles para que el evaluador pueda verificar control de acceso, CRUDs y restricciones desde el frontend y desde la API.
+
+## Problematica
+
+Las recomendaciones de peliculas suelen perderse en conversaciones, redes sociales o listas personales. Cinema ITO resuelve esto ofreciendo un espacio organizado donde se pueden consultar peliculas, guardar favoritas, registrar opiniones y generar un ranking basado en calificaciones reales de usuarios.
+
+## Tecnologias
+
+| Capa | Tecnologia |
+| --- | --- |
+| Frontend | React, Vite, React Router, CSS por pagina/componente |
+| Backend | Laravel 12, PHP 8.2+, Laravel Sanctum, Socialite |
+| Base de datos | MySQL |
+| API testing | Bruno |
+| Servidor | VPS Linux, HTTPS |
+| Servicios externos | Google OAuth, correo SMTP, GREEN-API para WhatsApp |
+
+## Funcionalidades principales
+
+- Registro e inicio de sesion con correo y contrasena.
+- Inicio de sesion con Google.
+- Notificacion por correo al crear cuenta manualmente o con Google.
+- Recuperacion de contrasena por correo.
+- Recuperacion de contrasena por WhatsApp mediante GREEN-API.
+- Validacion de contrasena segura en frontend y backend.
+- Autenticacion protegida con Laravel Sanctum.
+- Tres roles: Administrador, Moderador y Cinefilo.
+- Middleware por rol en Laravel.
+- Rutas protegidas por rol en React.
+- Catalogo de peliculas con busqueda, filtros y ordenamiento.
+- Importacion/consulta de peliculas desde API externa.
+- Lista personal con filtros: todas, vistas y por ver.
+- Resenas con calificacion por estrellas.
+- Like/dislike en resenas.
+- Respuestas a resenas.
+- Perfiles publicos de usuarios.
+- Seguidores y seguidos.
+- Notificaciones navegables.
+- Foto de perfil.
+- Ranking de mejores peliculas basado en calificaciones de usuarios.
+- Panel de Administrador.
+- Panel de Moderador.
+- Coleccion Bruno para demostrar endpoints.
+
+## Roles y permisos
+
+| Rol | Permisos principales |
+| --- | --- |
+| Administrador | Acceso total, gestion de peliculas, generos, usuarios, roles y resenas. Puede eliminar usuarios y administrar todo el contenido. |
+| Moderador | Revision de contenido. Puede acceder al panel de moderacion y eliminar resenas inapropiadas. |
+| Cinefilo | Usuario estandar. Puede guardar peliculas, marcar vistas/por ver, escribir resenas, reaccionar, responder, seguir usuarios y editar su perfil. |
+
+## Credenciales de prueba
+
+Estas cuentas se cargan con los seeders y sirven para evaluacion.
 
 | Rol | Correo | Contrasena |
 | --- | --- | --- |
 | Administrador | admin@cinemaito.com | Admin123! |
 | Moderador | mod@cinemaito.com | Moderador123! |
 | Cinefilo | user@cinemaito.com | Usuario123! |
-| Developer/Evaluador | developer@cinemaito.com | Developer123! |
+| Evaluador/Admin | developer@cinemaito.com | Developer123! |
 
-## Login social
+## Reglas de seguridad de contrasena
 
-El proyecto incluye inicio de sesion con Google y Facebook usando Laravel Socialite. Para activarlo en el VPS se deben crear las aplicaciones OAuth y llenar estas variables en `backend/.env`:
+La contrasena debe cumplir:
 
-```env
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=https://srv1829255.hstgr.cloud/api/auth/google/callback
+- Minimo 8 caracteres.
+- Al menos una mayuscula.
+- Al menos un numero.
+- Al menos un caracter especial.
 
-FACEBOOK_CLIENT_ID=
-FACEBOOK_CLIENT_SECRET=
-FACEBOOK_REDIRECT_URI=https://srv1829255.hstgr.cloud/api/auth/facebook/callback
-```
+Se valida en:
 
-URLs que deben registrarse en las consolas OAuth:
+- Frontend, debajo del input de contrasena.
+- Backend, usando Form Requests de Laravel.
 
-```text
-Google:   https://srv1829255.hstgr.cloud/api/auth/google/callback
-Facebook: https://srv1829255.hstgr.cloud/api/auth/facebook/callback
-```
+## Modulos y tablas principales
 
-Si esas credenciales no estan configuradas, los botones regresan al login con un mensaje claro para evitar errores silenciosos.
+### users
 
-## Repositorio
+Guarda usuarios, correo, contrasena cifrada, avatar y rol.
 
-Repositorio de GitHub:
+Relaciones:
 
-```text
-https://github.com/ProyectoFinalPrograweb/ProyectoFinal
-```
+- Pertenece a un rol.
+- Tiene muchas resenas.
+- Tiene muchas peliculas favoritas.
+- Puede seguir a otros usuarios.
+- Puede recibir notificaciones.
 
-## GitHub Projects
+### roles
 
-Tablero de GitHub Projects:
+Define permisos principales del sistema.
 
-https://github.com/orgs/ProyectoFinalPrograweb/projects/1/views/1
+Roles actuales:
 
-El tablero debera configurarse con las siguientes columnas:
+- Administrador
+- Moderador
+- Cinefilo
 
-- Backlog
-- To Do
-- In Progress
-- In Review
-- Done
+### peliculas
 
-## Tareas iniciales para GitHub Projects
+Guarda informacion del catalogo.
 
-### Tareas sugeridas para Omar
+Campos principales:
 
-1. Crear estructura inicial del proyecto.
-2. Configurar repositorio y README.
-3. Definir migracion de usuarios.
-4. Definir migracion de roles.
-5. Implementar autenticacion de usuarios.
-6. Crear modelo y migracion de peliculas.
-7. Implementar listado de peliculas.
-8. Implementar registro de peliculas.
-9. Implementar edicion de peliculas.
-10. Implementar eliminacion de peliculas.
+- titulo
+- director
+- anio
+- sinopsis
+- imagen
+- genero_id
+- usuario_id
 
-### Tareas sugeridas para Angel Gabriel Antonio Mendez
+### generos
 
-1. Crear modelo y migracion de generos.
-2. Implementar CRUD de generos.
-3. Crear modelo y migracion de resenas.
-4. Implementar comentarios por pelicula.
-5. Implementar calificacion de peliculas.
-6. Crear modelo y migracion de favoritos.
-7. Implementar agregar pelicula a favoritos.
-8. Implementar listado de favoritos por usuario.
-9. Implementar busqueda de peliculas.
-10. Probar funcionalidades principales del sistema.
+Clasifica peliculas por categoria.
 
-## Tecnologias utilizadas
+### resenas
 
-- Backend: Laravel 12, Laravel Sanctum, PHP 8.2+
-- Frontend: React, Vite, React Router
-- Base de datos: MySQL
-- Pruebas de API: Bruno
-- Estilos: CSS modular por pagina/componente
+Guarda comentario y calificacion de un usuario sobre una pelicula.
 
-## Instalacion y ejecucion local
+La calificacion se usa para calcular el ranking.
 
-Backend:
+### favoritos
 
-```bash
-cd backend
-php composer.phar install
-copy .env.example .env
-php artisan key:generate
-php artisan migrate:fresh --seed
-php artisan serve
-```
+Relaciona usuarios con peliculas guardadas. Incluye estado para saber si la pelicula esta vista o por ver.
 
-Frontend:
+### resena_reacciones
 
-```bash
-cd frontend
-npm.cmd install
-npm.cmd run dev
-```
+Guarda like o dislike de usuarios sobre resenas.
 
-URLs locales:
+### resena_respuestas
 
-```text
-Frontend: http://127.0.0.1:5173
-API: http://127.0.0.1:8000/api
-```
+Guarda respuestas de usuarios a resenas.
 
-## API documentada
+### user_follows
 
-Publicas:
+Guarda relacion de seguidores y seguidos entre usuarios.
 
-```text
-POST /api/register
-POST /api/login
-POST /api/forgot-password
-POST /api/reset-password
-GET  /api/generos
-GET  /api/peliculas
-GET  /api/peliculas/{id}
-```
+### notifications
 
-Protegidas con Sanctum:
+Guarda notificaciones de:
 
-```text
-GET    /api/me
-POST   /api/logout
-GET    /api/favoritos
-POST   /api/peliculas/{id}/favorito
-POST   /api/peliculas/{id}/resenas
-```
+- Nuevo seguidor.
+- Like en resena.
+- Respuesta a resena.
 
-Administrador:
-
-```text
-GET    /api/admin/resumen
-POST   /api/admin/peliculas
-PUT    /api/admin/peliculas/{id}
-DELETE /api/admin/peliculas/{id}
-POST   /api/admin/generos
-PUT    /api/admin/generos/{id}
-DELETE /api/admin/generos/{id}
-DELETE /api/admin/resenas/{id}
-PUT    /api/admin/users/{id}/role
-```
-
-Moderador:
-
-```text
-GET    /api/moderador/resumen
-DELETE /api/moderador/resenas/{id}
-```
-
-## Bruno
-
-La coleccion de Bruno esta versionada en:
-
-```text
-bruno/
-```
-
-Incluye pruebas de:
-
-- Login y obtencion del token.
-- Uso del token en endpoint protegido.
-- Error 403 por rol incorrecto.
-- Error 422 por datos invalidos.
-- Error 404 por recurso inexistente.
-- Recuperacion de contrasena.
-
-## Diagrama ER
+## Relaciones principales
 
 ```mermaid
 erDiagram
@@ -398,44 +182,467 @@ erDiagram
     peliculas ||--o{ resenas : recibe
     users ||--o{ favoritos : guarda
     peliculas ||--o{ favoritos : aparece_en
+    users ||--o{ resena_reacciones : reacciona
+    resenas ||--o{ resena_reacciones : recibe
+    resenas ||--o{ resena_respuestas : tiene
+    users ||--o{ resena_respuestas : responde
+    users ||--o{ user_follows : follower
+    users ||--o{ user_follows : followed
 ```
 
-## Figma
+## Ranking de mejores peliculas
 
-Pendiente pegar el link real del prototipo navegable:
+El inicio incluye una seccion llamada "Ranking de mejores peliculas".
+
+El ranking se calcula con datos reales de las resenas:
+
+- Laravel obtiene el promedio con `withAvg('resenas as calificacion_promedio', 'calificacion')`.
+- Laravel cuenta las resenas con `withCount('resenas')`.
+- React muestra solo peliculas con al menos una resena.
+- El orden principal es por promedio de calificacion.
+- Si hay empate, se ordena por cantidad de resenas.
+
+Esto permite explicar a la profesora que el ranking no esta escrito manualmente, sino que depende de las estrellas que dejan los usuarios.
+
+## Instalacion local
+
+### Requisitos
+
+- PHP 8.2 o superior.
+- Composer.
+- Node.js y npm.
+- MySQL.
+- WAMP, XAMPP o MySQL local.
+
+### Base de datos local
+
+Crear la base de datos:
+
+```sql
+CREATE DATABASE cine_ito CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Configurar `backend/.env`:
+
+```env
+APP_NAME="Cinema ITO"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+FRONTEND_URL=http://127.0.0.1:5173
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=cine_ito
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### Backend local
+
+```bash
+cd backend
+composer install
+copy .env.example .env
+php artisan key:generate
+php artisan migrate:fresh --seed
+php artisan serve
+```
+
+Si Composer no esta en PATH pero existe `composer.phar`:
+
+```bash
+php composer.phar install
+```
+
+Backend local:
 
 ```text
-URL FIGMA: PENDIENTE
+http://127.0.0.1:8000
 ```
 
-Debe incluir pantallas por rol, paleta justificada y logo original.
+API local:
 
-## VPS
-
-Pendiente para entrega final:
-
-## URL PROYECTO HTTPS:    
-    https://srv1829255.hstgr.cloud
-URL BASE API HTTPS:
-    https://srv1829255.hstgr.cloud/api
+```text
+http://127.0.0.1:8000/api
 ```
 
-Checklist VPS:
+### Frontend local
 
-- Clonar repositorio.
-- Configurar `.env` real.
-- Instalar dependencias de Laravel.
-- Instalar y compilar frontend.
-- Ejecutar migraciones y seeders.
-- Configurar Nginx como proxy reverso.
-- Configurar HTTPS con Certbot.
-- Configurar correo real con Postfix, SPF y DKIM.
-- Configurar SMS y WhatsApp con variables reales.
+```bash
+cd frontend
+npm.cmd install
+npm.cmd run dev
+```
 
-## Comunicacion real pendiente
+Frontend local:
 
-- Correo real desde VPS con Postfix.
-- SMS desde una API como Twilio.
-- WhatsApp desde Twilio o WhatsApp Cloud API.
+```text
+http://127.0.0.1:5173
+```
 
-Las variables sensibles deben ir en `.env` y nunca subirse al repositorio.
+## Variables de entorno importantes
+
+No subir secretos reales al repositorio. Deben ir en `backend/.env`.
+
+### Google OAuth
+
+```env
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=https://srv1829255.hstgr.cloud/api/auth/google/callback
+```
+
+Callback que debe registrarse en Google Cloud:
+
+```text
+https://srv1829255.hstgr.cloud/api/auth/google/callback
+```
+
+### Facebook OAuth
+
+El boton de Facebook fue retirado de la interfaz porque no se completo la configuracion. El backend conserva soporte para Socialite si se decide activarlo despues.
+
+```env
+FACEBOOK_CLIENT_ID=
+FACEBOOK_CLIENT_SECRET=
+FACEBOOK_REDIRECT_URI=https://srv1829255.hstgr.cloud/api/auth/facebook/callback
+```
+
+### Correo
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=
+MAIL_PORT=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_ENCRYPTION=
+MAIL_FROM_ADDRESS=
+MAIL_FROM_NAME="Cinema ITO"
+```
+
+Se usa para:
+
+- Notificacion de cuenta creada.
+- Recuperacion de contrasena por correo.
+
+### WhatsApp con GREEN-API
+
+```env
+GREEN_API_ID_INSTANCE=
+GREEN_API_TOKEN_INSTANCE=
+```
+
+Se usa para enviar el enlace de recuperacion de contrasena por WhatsApp.
+
+## Endpoints principales
+
+URL base produccion:
+
+```text
+https://srv1829255.hstgr.cloud/api
+```
+
+URL base local:
+
+```text
+http://127.0.0.1:8000/api
+```
+
+### Autenticacion
+
+| Metodo | Endpoint | Descripcion |
+| --- | --- | --- |
+| POST | `/register` | Crear cuenta |
+| POST | `/login` | Iniciar sesion |
+| POST | `/logout` | Cerrar sesion |
+| GET | `/me` | Obtener usuario autenticado |
+| PUT | `/profile` | Actualizar nombre, correo o avatar |
+| PUT | `/profile/password` | Cambiar contrasena |
+| GET | `/auth/google/redirect` | Redireccionar a Google |
+| GET | `/auth/google/callback` | Callback de Google |
+| POST | `/forgot-password` | Solicitar recuperacion por correo o WhatsApp |
+| POST | `/reset-password` | Restablecer contrasena |
+
+### Catalogo
+
+| Metodo | Endpoint | Descripcion |
+| --- | --- | --- |
+| GET | `/generos` | Listar generos |
+| GET | `/peliculas` | Listar peliculas con filtros |
+| GET | `/peliculas/{id}` | Detalle de pelicula |
+| GET | `/peliculas-api/buscar?query=roma` | Buscar en API externa |
+| GET | `/peliculas-api/detalle/{id}` | Detalle desde API externa |
+
+Parametros utiles de `/peliculas`:
+
+```text
+search=roma
+genero_id=1
+orden=calificacion|vistas|recientes
+page=1
+per_page=12
+```
+
+### Funciones de usuario autenticado
+
+Requieren token Bearer de Sanctum.
+
+| Metodo | Endpoint | Descripcion |
+| --- | --- | --- |
+| GET | `/favoritos` | Ver mi lista |
+| POST | `/peliculas/{id}/favorito` | Agregar/quitar de mi lista |
+| PUT | `/peliculas/{id}/vista` | Marcar vista o por ver |
+| POST | `/peliculas/{id}/resenas` | Crear o actualizar resena |
+| POST | `/resenas/{id}/reaccion` | Like/dislike en resena |
+| POST | `/resenas/{id}/respuestas` | Responder resena |
+| POST | `/usuarios/{id}/seguir` | Seguir/dejar de seguir usuario |
+| GET | `/notifications` | Listar notificaciones |
+| POST | `/notifications/{id}/read` | Marcar notificacion como leida |
+| POST | `/notifications/read-all` | Marcar todas como leidas |
+| POST | `/peliculas/importar-favorito` | Importar pelicula externa y guardarla |
+
+### Perfiles publicos
+
+| Metodo | Endpoint | Descripcion |
+| --- | --- | --- |
+| GET | `/usuarios/{id}` | Perfil publico |
+| GET | `/usuarios/{id}/seguidores` | Lista de seguidores |
+| GET | `/usuarios/{id}/seguidos` | Lista de usuarios seguidos |
+
+### Administrador
+
+Requiere rol `Administrador`.
+
+| Metodo | Endpoint | Descripcion |
+| --- | --- | --- |
+| GET | `/admin/resumen` | Datos para panel admin |
+| POST | `/admin/peliculas` | Crear pelicula |
+| PUT | `/admin/peliculas/{id}` | Editar pelicula |
+| DELETE | `/admin/peliculas/{id}` | Eliminar pelicula |
+| POST | `/admin/generos` | Crear genero |
+| PUT | `/admin/generos/{id}` | Editar genero |
+| DELETE | `/admin/generos/{id}` | Eliminar genero |
+| DELETE | `/admin/resenas/{id}` | Eliminar resena |
+| PUT | `/admin/users/{id}/role` | Cambiar rol de usuario |
+| DELETE | `/admin/users/{id}` | Eliminar usuario |
+| POST | `/admin/peliculas/sincronizar-posters` | Sincronizar posters desde API externa |
+
+### Moderador
+
+Requiere rol `Administrador` o `Moderador`.
+
+| Metodo | Endpoint | Descripcion |
+| --- | --- | --- |
+| GET | `/moderador/resumen` | Datos para panel moderador |
+| DELETE | `/moderador/resenas/{id}` | Eliminar resena inapropiada |
+
+## Ejemplos para Bruno
+
+La coleccion esta en:
+
+```text
+bruno/
+```
+
+### Login
+
+```http
+POST {{base_url}}/login
+Content-Type: application/json
+
+{
+  "email": "admin@cinemaito.com",
+  "password": "Admin123!"
+}
+```
+
+Guardar el token recibido y usarlo como:
+
+```text
+Authorization: Bearer {{token}}
+```
+
+### Crear resena
+
+```http
+POST {{base_url}}/peliculas/1/resenas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "calificacion": 9,
+  "comentario": "Excelente pelicula mexicana, muy recomendable."
+}
+```
+
+### Reaccionar a resena
+
+```http
+POST {{base_url}}/resenas/1/reaccion
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tipo": "like"
+}
+```
+
+### Responder resena
+
+```http
+POST {{base_url}}/resenas/1/respuestas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "comentario": "Estoy de acuerdo, la actuacion es muy buena."
+}
+```
+
+### Cambiar rol
+
+```http
+PUT {{base_url}}/admin/users/3/role
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "role_id": 2
+}
+```
+
+## Despliegue en VPS
+
+Ruta del proyecto en el servidor:
+
+```text
+/var/www/html/cinema-ito
+```
+
+Ruta publica usada por el servidor:
+
+```text
+/var/www/html/cinema-ito/backend/public
+```
+
+### Publicar cambios de frontend
+
+En Windows local:
+
+```powershell
+cd C:\wamp64\www\repaso-php\ProyectoFinal\frontend
+npm.cmd run build
+pscp -hostkey "SHA256:EKNiqRpDEgnc6jDk2i0UHOJcTwuy8UfB1uDLHSCbflQ" -r "C:\wamp64\www\repaso-php\ProyectoFinal\frontend\dist\*" omar@168.231.75.27:/tmp/cinema-ito-dist/
+```
+
+En el VPS:
+
+```bash
+cd /var/www/html/cinema-ito/backend/public
+mkdir -p assets
+find assets -maxdepth 1 -type f -delete
+cp -a /tmp/cinema-ito-dist/assets/. assets/
+cp /tmp/cinema-ito-dist/index.html .
+cp /tmp/cinema-ito-dist/*.png . 2>/dev/null || true
+cp /tmp/cinema-ito-dist/*.svg . 2>/dev/null || true
+```
+
+### Publicar cambios de backend
+
+En el VPS:
+
+```bash
+cd /var/www/html/cinema-ito
+git pull
+cd backend
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+## Comandos utiles en VPS
+
+Entrar al proyecto:
+
+```bash
+cd /var/www/html/cinema-ito/backend
+```
+
+Ver variables configuradas:
+
+```bash
+cat .env
+```
+
+Probar estado de Laravel:
+
+```bash
+php artisan about
+```
+
+Limpiar cache:
+
+```bash
+php artisan optimize:clear
+```
+
+Entrar a MySQL:
+
+```bash
+mysql -u cine_ito_user -p cine_ito
+```
+
+Comandos SQL utiles:
+
+```sql
+SHOW TABLES;
+SELECT id, name, email, role_id FROM users;
+SELECT id, titulo, anio FROM peliculas LIMIT 10;
+SELECT pelicula_id, AVG(calificacion), COUNT(*) FROM resenas GROUP BY pelicula_id;
+```
+
+## Estructura del repositorio
+
+```text
+ProyectoFinal/
+  backend/      Laravel, API, migraciones, seeders y logica del sistema
+  frontend/     React, Vite, estilos y vistas
+  bruno/        Coleccion de pruebas para API
+  README.md     Documentacion del proyecto
+```
+
+## Puntos para explicar en exposicion
+
+- El frontend no trabaja solo con datos falsos: consume la API de Laravel.
+- Las rutas protegidas usan token de Sanctum.
+- El backend restringe permisos con middleware por rol.
+- React tambien oculta rutas y componentes segun rol.
+- Las contrasenas se cifran con hash.
+- El ranking se calcula con promedios reales de resenas.
+- Las notificaciones se guardan en base de datos y navegan al recurso relacionado.
+- La recuperacion de contrasena puede enviarse por correo o WhatsApp.
+- El panel Admin y Moderador prueban control de acceso real.
+
+## Estado final
+
+El proyecto cumple con:
+
+- Full stack funcional.
+- Base de datos MySQL.
+- API REST documentable con Bruno.
+- Login y registro.
+- Roles y permisos.
+- CRUD administrativo.
+- Moderacion.
+- Resenas, reacciones y respuestas.
+- Perfiles sociales.
+- Ranking por calificaciones.
+- Despliegue en VPS con HTTPS.
+
+Las credenciales reales de servicios externos no deben guardarse en GitHub.
