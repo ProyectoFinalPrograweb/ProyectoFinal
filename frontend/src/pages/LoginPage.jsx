@@ -229,8 +229,8 @@ export default function LoginPage() {
 
               <div className="form-group">
                 <div className="form-label-row">
-                  <label className="form-label">Contrasena</label>
-                  <button type="button" className="forgot-link" onClick={() => switchTab('forgot')}>Olvidaste tu contrasena?</button>
+                  <label className="form-label">Contraseña</label>
+                  <button type="button" className="forgot-link" onClick={() => switchTab('forgot')}>Olvidaste tu contraseña?</button>
                 </div>
                 <div className="input-icon-wrap">
                   <span className="icon" style={{display:'flex',alignItems:'center'}}><Lock size={18} color="#888" /></span>
@@ -275,7 +275,7 @@ export default function LoginPage() {
           {tab === 'forgot' && (
             <form className="login-form animate-fade-in" onSubmit={handleForgotPassword}>
               <div className="login-greeting">
-                <h2>Recuperar contrasena</h2>
+                <h2>Recuperar contraseña</h2>
                 <p>Escribe el correo de tu cuenta y elige como quieres recibir el enlace.</p>
               </div>
 
@@ -397,7 +397,7 @@ export default function LoginPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Contrasena</label>
+                <label className="form-label">Contraseña</label>
                 <div className="input-icon-wrap">
                   <span className="icon" style={{display:'flex',alignItems:'center'}}><Lock size={18} color="#888" /></span>
                   <input

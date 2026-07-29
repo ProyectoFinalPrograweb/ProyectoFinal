@@ -268,7 +268,7 @@ export default function ProfilePage() {
           <h2>Configuracion</h2>
           <div className="settings-list">
             <div className="setting-item"><div><h4>Correo electronico</h4><p>{user.email}</p></div><button type="button" className="btn btn-outline" onClick={() => setProfileOpen(true)}>Cambiar</button></div>
-            <div className="setting-item"><div><h4>Contrasena</h4><p>Protegida con hash en la base de datos</p></div><button type="button" className="btn btn-outline" onClick={() => setPasswordOpen(true)}>Cambiar</button></div>
+            <div className="setting-item"><div><h4>Contraseña</h4><p>Protegida con hash en la base de datos</p></div><button type="button" className="btn btn-outline" onClick={() => setPasswordOpen(true)}>Cambiar</button></div>
             <div className="setting-item setting-danger"><div><h4>Cerrar sesion</h4><p>Cerrar sesion en este dispositivo</p></div><button type="button" className="btn btn-outline danger-btn" onClick={logout}>Salir</button></div>
           </div>
         </section>
