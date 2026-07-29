@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, MessageCircle, Phone, User } from 'lucide-react';
 import { API_URL, saveSession } from '../services/api';
 import './LoginPage.css';
 
@@ -15,7 +15,8 @@ export default function LoginPage() {
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [regData, setRegData] = useState({ nombre: '', email: '', password: '' });
-  const [forgotData, setForgotData] = useState({ email: '' });
+  const [forgotMethod, setForgotMethod] = useState('email');
+  const [forgotData, setForgotData] = useState({ email: '', telefono: '' });
 
   const passwordRules = [
     { label: 'Minimo 8 caracteres', valid: regData.password.length >= 8 },
@@ -58,7 +59,7 @@ export default function LoginPage() {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       const error = new Error(data.message || 'No se pudo completar la solicitud.');
@@ -118,11 +119,20 @@ export default function LoginPage() {
     setFieldErrors({});
 
     try {
-      const data = await requestJson('/forgot-password', forgotData);
+      const path = forgotMethod === 'whatsapp' ? '/forgot-password-whatsapp' : '/forgot-password';
+      const payload = forgotMethod === 'whatsapp'
+        ? { telefono: forgotData.telefono }
+        : { email: forgotData.email };
+      const data = await requestJson(path, payload);
       setFormMessage({ type: 'success', text: data.message });
     } catch (error) {
       setFieldErrors(error.errors || {});
-      setFormMessage({ type: 'error', text: error.message });
+      setFormMessage({
+        type: 'error',
+        text: forgotMethod === 'whatsapp' && error.message === 'No se pudo completar la solicitud.'
+          ? 'La recuperacion por WhatsApp aun no esta disponible en el backend.'
+          : error.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -255,30 +265,74 @@ export default function LoginPage() {
             <form className="login-form animate-fade-in" onSubmit={handleForgotPassword}>
               <div className="login-greeting">
                 <h2>Recuperar contrasena</h2>
-                <p>Escribe tu correo y te enviaremos un enlace de recuperacion.</p>
+                <p>Elige como quieres recibir el enlace para restablecer tu acceso.</p>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Correo electronico</label>
-                <div className="input-icon-wrap">
-                  <span className="icon" style={{display:'flex',alignItems:'center'}}><Mail size={18} color="#888" /></span>
-                  <input
-                    id="forgot-email"
-                    type="email"
-                    className="form-input"
-                    placeholder="tu@correo.com"
-                    value={forgotData.email}
-                    onChange={e => setForgotData({ email: e.target.value })}
-                    required
-                  />
-                </div>
-                {firstError('email') && <p className="field-error">{firstError('email')}</p>}
+              <div className="forgot-methods" role="tablist" aria-label="Metodo de recuperacion">
+                <button
+                  type="button"
+                  className={`forgot-method ${forgotMethod === 'email' ? 'active' : ''}`}
+                  onClick={() => {
+                    setForgotMethod('email');
+                    setFormMessage(null);
+                    setFieldErrors({});
+                  }}
+                >
+                  <Mail size={16} /> Correo
+                </button>
+                <button
+                  type="button"
+                  className={`forgot-method ${forgotMethod === 'whatsapp' ? 'active' : ''}`}
+                  onClick={() => {
+                    setForgotMethod('whatsapp');
+                    setFormMessage(null);
+                    setFieldErrors({});
+                  }}
+                >
+                  <MessageCircle size={16} /> WhatsApp
+                </button>
               </div>
+
+              {forgotMethod === 'email' ? (
+                <div className="form-group">
+                  <label className="form-label">Correo electronico</label>
+                  <div className="input-icon-wrap">
+                    <span className="icon" style={{display:'flex',alignItems:'center'}}><Mail size={18} color="#888" /></span>
+                    <input
+                      id="forgot-email"
+                      type="email"
+                      className="form-input"
+                      placeholder="tu@correo.com"
+                      value={forgotData.email}
+                      onChange={e => setForgotData({ ...forgotData, email: e.target.value })}
+                      required
+                    />
+                  </div>
+                  {firstError('email') && <p className="field-error">{firstError('email')}</p>}
+                </div>
+              ) : (
+                <div className="form-group">
+                  <label className="form-label">Numero de WhatsApp</label>
+                  <div className="input-icon-wrap">
+                    <span className="icon" style={{display:'flex',alignItems:'center'}}><Phone size={18} color="#888" /></span>
+                    <input
+                      id="forgot-telefono"
+                      type="tel"
+                      className="form-input"
+                      placeholder="+52 951 000 0000"
+                      value={forgotData.telefono}
+                      onChange={e => setForgotData({ ...forgotData, telefono: e.target.value })}
+                      required
+                    />
+                  </div>
+                  {firstError('telefono') && <p className="field-error">{firstError('telefono')}</p>}
+                </div>
+              )}
 
               {formMessage && <p className={`form-message ${formMessage.type}`}>{formMessage.text}</p>}
 
               <button type="submit" className="btn btn-primary login-submit-btn" disabled={loading}>
-                {loading ? 'Enviando...' : 'Enviar enlace'}
+                {loading ? 'Enviando...' : forgotMethod === 'whatsapp' ? 'Enviar por WhatsApp' : 'Enviar enlace'}
               </button>
 
               <button type="button" className="btn btn-outline login-submit-btn" onClick={() => switchTab('login')}>
