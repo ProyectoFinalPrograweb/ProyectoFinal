@@ -291,10 +291,12 @@
 /* Social */
 .login-social {
   display: flex;
+  justify-content: center;
   gap: var(--spacing-sm);
 }
 .social-btn {
   flex: 1;
+  max-width: 280px;
   justify-content: center;
   font-size: 0.85rem;
   padding: 10px;

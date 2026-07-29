@@ -17,4 +17,14 @@ class Resena extends Model
     {
         return $this->belongsTo(Pelicula::class);
     }
+
+    public function reacciones()
+    {
+        return $this->hasMany(ResenaReaccion::class);
+    }
+
+    public function respuestas()
+    {
+        return $this->hasMany(ResenaRespuesta::class);
+    }
 }

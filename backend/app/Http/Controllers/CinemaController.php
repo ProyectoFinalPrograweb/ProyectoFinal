@@ -18,8 +18,10 @@ use App\Models\Favorito;
 use App\Models\Genero;
 use App\Models\Pelicula;
 use App\Models\Resena;
+use App\Models\ResenaReaccion;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserFollow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -71,11 +73,13 @@ class CinemaController extends Controller
         ]);
     }
 
-    public function pelicula(Pelicula $pelicula): JsonResponse
+    public function pelicula(Request $request, Pelicula $pelicula): JsonResponse
     {
-        $pelicula->load(['genero', 'resenas.usuario'])
+        $pelicula->load(['genero', 'resenas.usuario', 'resenas.respuestas.usuario'])
             ->loadAvg('resenas as calificacion_promedio', 'calificacion')
             ->loadCount(['resenas', 'marcadosPorUsuarios as favoritos_count']);
+
+        $this->decorateResenas($pelicula->resenas, $request->user());
 
         $relacionadas = Pelicula::with('genero')
             ->withAvg('resenas as calificacion_promedio', 'calificacion')
@@ -105,11 +109,127 @@ class CinemaController extends Controller
                 'comentario' => $validated['comentario'],
                 'calificacion' => $validated['calificacion'],
             ]
-        )->load('usuario');
+        )->load(['usuario', 'respuestas.usuario']);
+
+        $this->decorateResenas(collect([$resena]), $request->user());
 
         return response()->json([
             'message' => 'Resena guardada correctamente.',
             'data' => ResenaResource::make($resena),
+        ], 201);
+    }
+
+    public function perfilUsuario(Request $request, User $user): JsonResponse
+    {
+        $user->load('role')->loadCount(['seguidores', 'seguidos', 'resenas']);
+
+        $resenas = $user->resenas()
+            ->with(['pelicula', 'usuario', 'respuestas.usuario'])
+            ->latest()
+            ->get();
+
+        $this->decorateResenas($resenas, $request->user());
+
+        $siguiendo = false;
+        if ($request->user()) {
+            $siguiendo = UserFollow::where('follower_id', $request->user()->id)
+                ->where('followed_id', $user->id)
+                ->exists();
+        }
+
+        return response()->json([
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $request->user()?->id === $user->id ? $user->email : null,
+                'avatar' => $user->avatar,
+                'role' => $user->role?->nombre,
+                'iniciales' => collect(explode(' ', $user->name))->map(fn ($part) => $part[0] ?? '')->take(2)->join(''),
+                'seguidores_count' => $user->seguidores_count,
+                'seguidos_count' => $user->seguidos_count,
+                'resenas_count' => $user->resenas_count,
+                'siguiendo' => $siguiendo,
+                'es_mi_perfil' => $request->user()?->id === $user->id,
+                'resenas' => ResenaResource::collection($resenas),
+            ],
+        ]);
+    }
+
+    public function toggleSeguir(Request $request, User $user): JsonResponse
+    {
+        if ($request->user()->id === $user->id) {
+            return response()->json([
+                'message' => 'No puedes seguir tu propio perfil.',
+            ], 422);
+        }
+
+        $follow = UserFollow::where('follower_id', $request->user()->id)
+            ->where('followed_id', $user->id)
+            ->first();
+
+        if ($follow) {
+            $follow->delete();
+            $siguiendo = false;
+            $message = 'Dejaste de seguir este perfil.';
+        } else {
+            UserFollow::create([
+                'follower_id' => $request->user()->id,
+                'followed_id' => $user->id,
+            ]);
+            $siguiendo = true;
+            $message = 'Ahora sigues este perfil.';
+        }
+
+        return response()->json([
+            'message' => $message,
+            'siguiendo' => $siguiendo,
+            'seguidores_count' => $user->seguidores()->count(),
+        ]);
+    }
+
+    public function reaccionarResena(Request $request, Resena $resena): JsonResponse
+    {
+        $validated = $request->validate([
+            'tipo' => ['required', 'in:like,dislike'],
+        ]);
+
+        $reaccion = ResenaReaccion::where('resena_id', $resena->id)
+            ->where('usuario_id', $request->user()->id)
+            ->first();
+
+        if ($reaccion && $reaccion->tipo === $validated['tipo']) {
+            $reaccion->delete();
+            $miReaccion = null;
+        } else {
+            ResenaReaccion::updateOrCreate(
+                ['resena_id' => $resena->id, 'usuario_id' => $request->user()->id],
+                ['tipo' => $validated['tipo']]
+            );
+            $miReaccion = $validated['tipo'];
+        }
+
+        return response()->json([
+            'message' => 'Reaccion actualizada.',
+            'likes' => $resena->reacciones()->where('tipo', 'like')->count(),
+            'dislikes' => $resena->reacciones()->where('tipo', 'dislike')->count(),
+            'mi_reaccion' => $miReaccion,
+        ]);
+    }
+
+    public function responderResena(Request $request, Resena $resena): JsonResponse
+    {
+        $validated = $request->validate([
+            'comentario' => ['required', 'string', 'min:2', 'max:700'],
+        ]);
+
+        $respuesta = $resena->respuestas()->create([
+            'usuario_id' => $request->user()->id,
+            'comentario' => $validated['comentario'],
+        ])->load('usuario');
+
+        return response()->json([
+            'message' => 'Respuesta publicada.',
+            'data' => \App\Http\Resources\ResenaRespuestaResource::make($respuesta),
         ], 201);
     }
 
@@ -419,5 +539,18 @@ class CinemaController extends Controller
             'data' => PeliculaResource::make($pelicula),
         ], 201);
     }
-}
 
+    private function decorateResenas($resenas, ?User $viewer): void
+    {
+        $resenas->each(function (Resena $resena) use ($viewer): void {
+            $resena->loadCount([
+                'reacciones as likes_count' => fn ($query) => $query->where('tipo', 'like'),
+                'reacciones as dislikes_count' => fn ($query) => $query->where('tipo', 'dislike'),
+            ]);
+
+            $resena->mi_reaccion = $viewer
+                ? $resena->reacciones()->where('usuario_id', $viewer->id)->value('tipo')
+                : null;
+        });
+    }
+}

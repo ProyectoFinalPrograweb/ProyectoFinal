@@ -18,7 +18,11 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 Route::get('/generos', [CinemaController::class, 'generos']);
 Route::get('/peliculas', [CinemaController::class, 'peliculas']);
 Route::get('/peliculas/{pelicula}', [CinemaController::class, 'pelicula']);
+Route::get('/usuarios/{user}', [CinemaController::class, 'perfilUsuario']);
 Route::middleware('auth:sanctum')->post('/peliculas/{pelicula}/resenas', [CinemaController::class, 'storeResena']);
+Route::middleware('auth:sanctum')->post('/usuarios/{user}/seguir', [CinemaController::class, 'toggleSeguir']);
+Route::middleware('auth:sanctum')->post('/resenas/{resena}/reaccion', [CinemaController::class, 'reaccionarResena']);
+Route::middleware('auth:sanctum')->post('/resenas/{resena}/respuestas', [CinemaController::class, 'responderResena']);
 Route::middleware('auth:sanctum')->get('/favoritos', [CinemaController::class, 'favoritos']);
 Route::middleware('auth:sanctum')->post('/peliculas/{pelicula}/favorito', [CinemaController::class, 'toggleFavorito']);
 Route::middleware('auth:sanctum')->put('/peliculas/{pelicula}/vista', [CinemaController::class, 'updateVista']);
@@ -38,4 +42,3 @@ Route::get('/peliculas-api/detalle/{id}', [CinemaController::class, 'obtenerDeta
 Route::middleware('auth:sanctum')->post('/peliculas/importar-favorito', [CinemaController::class, 'importarYFavorito']);
 Route::middleware(['auth:sanctum', 'role:Administrador'])->post('/admin/peliculas/sincronizar-posters', [CinemaController::class, 'sincronizarPosters']);
 Route::middleware(['auth:sanctum', 'role:Administrador'])->put('/admin/users/{user}/role', [CinemaController::class, 'updateUserRole']);
-

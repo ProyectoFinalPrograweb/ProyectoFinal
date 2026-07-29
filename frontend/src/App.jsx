@@ -7,6 +7,7 @@ import MyListPage from './pages/MyListPage'
 import MovieDetailPage from './pages/MovieDetailPage'
 import ExplorarPage from './pages/ExplorarPage'
 import ProfilePage from './pages/ProfilePage'
+import PublicProfilePage from './pages/PublicProfilePage'
 import AdminPage from './pages/AdminPage'
 import ModeratorPage from './pages/ModeratorPage'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -32,6 +33,7 @@ export default function App() {
                 <Route path="/mi-lista" element={<ProtectedRoute><MyListPage /></ProtectedRoute>} />
                 <Route path="/pelicula/:id" element={<MovieDetailPage />} />
                 <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+                <Route path="/usuarios/:id" element={<PublicProfilePage />} />
                 <Route path="/moderador" element={<ProtectedRoute roles={['Administrador', 'Moderador']}><ModeratorPage /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute roles={['Administrador']}><AdminPage /></ProtectedRoute>} />
 

@@ -13,6 +13,7 @@ export default function MovieDetailPage() {
   const [enLista, setEnLista] = useState(false);
   const [miCalif, setMiCalif] = useState(0);
   const [comentario, setComentario] = useState('');
+  const [replyForms, setReplyForms] = useState({});
   const [tab, setTab] = useState('resenas');
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
@@ -70,6 +71,67 @@ export default function MovieDetailPage() {
       setMiCalif(0);
       setMessage({ type: 'success', text: 'Resena guardada correctamente.' });
       loadPelicula();
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message });
+    }
+  };
+
+  const handleReactResena = async (resenaId, tipo) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await apiRequest(`/resenas/${resenaId}/reaccion`, {
+        method: 'POST',
+        body: JSON.stringify({ tipo }),
+      });
+
+      setPelicula(current => ({
+        ...current,
+        resenas: (current.resenas || []).map(resena => (
+          resena.id === resenaId
+            ? { ...resena, likes: response.likes, dislikes: response.dislikes, mi_reaccion: response.mi_reaccion }
+            : resena
+        )),
+      }));
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message });
+    }
+  };
+
+  const handleReplyChange = (resenaId, value) => {
+    setReplyForms(current => ({ ...current, [resenaId]: value }));
+  };
+
+  const handleReplyResena = async (event, resenaId) => {
+    event.preventDefault();
+
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    const comentarioRespuesta = (replyForms[resenaId] || '').trim();
+    if (!comentarioRespuesta) return;
+
+    try {
+      const response = await apiRequest(`/resenas/${resenaId}/respuestas`, {
+        method: 'POST',
+        body: JSON.stringify({ comentario: comentarioRespuesta }),
+      });
+
+      setPelicula(current => ({
+        ...current,
+        resenas: (current.resenas || []).map(resena => (
+          resena.id === resenaId
+            ? { ...resena, respuestas: [...(resena.respuestas || []), response.data] }
+            : resena
+        )),
+      }));
+      setReplyForms(current => ({ ...current, [resenaId]: '' }));
+      setMessage({ type: 'success', text: response.message });
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -196,16 +258,59 @@ export default function MovieDetailPage() {
                   peliculaResenas.map(r => (
                     <div key={r.id} className="resena-card">
                       <div className="resena-header">
-                        <div className="resena-avatar">
+                        <Link to={`/usuarios/${r.usuario.id}`} className="resena-avatar">
                           {r.usuario.avatar ? <img src={r.usuario.avatar} alt={r.usuario.nombre} /> : r.usuario.iniciales}
-                        </div>
+                        </Link>
                         <div>
-                          <span className="resena-nombre">{r.usuario.nombre}</span>
+                          <Link to={`/usuarios/${r.usuario.id}`} className="resena-nombre">{r.usuario.nombre}</Link>
                           <span className="resena-fecha">{r.fecha}</span>
                         </div>
                         <StarRating rating={r.calificacion} max={5} size="sm" />
                       </div>
                       <p className="resena-comentario">{r.comentario}</p>
+                      <div className="resena-actions-row">
+                        <button
+                          type="button"
+                          className={`resena-reaction-btn ${r.mi_reaccion === 'like' ? 'active' : ''}`}
+                          onClick={() => handleReactResena(r.id, 'like')}
+                        >
+                          Like {r.likes || 0}
+                        </button>
+                        <button
+                          type="button"
+                          className={`resena-reaction-btn ${r.mi_reaccion === 'dislike' ? 'active' : ''}`}
+                          onClick={() => handleReactResena(r.id, 'dislike')}
+                        >
+                          Dislike {r.dislikes || 0}
+                        </button>
+                      </div>
+
+                      {(r.respuestas || []).length > 0 && (
+                        <div className="resena-respuestas">
+                          {(r.respuestas || []).map(respuesta => (
+                            <div key={respuesta.id} className="resena-respuesta">
+                              <Link to={`/usuarios/${respuesta.usuario.id}`} className="resena-respuesta-avatar">
+                                {respuesta.usuario.avatar ? <img src={respuesta.usuario.avatar} alt={respuesta.usuario.nombre} /> : respuesta.usuario.iniciales}
+                              </Link>
+                              <div>
+                                <Link to={`/usuarios/${respuesta.usuario.id}`} className="resena-respuesta-nombre">{respuesta.usuario.nombre}</Link>
+                                <span className="resena-fecha">{respuesta.fecha}</span>
+                                <p>{respuesta.comentario}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <form className="resena-reply-form" onSubmit={event => handleReplyResena(event, r.id)}>
+                        <input
+                          className="form-input"
+                          value={replyForms[r.id] || ''}
+                          onChange={event => handleReplyChange(r.id, event.target.value)}
+                          placeholder={user ? 'Responder a esta resena...' : 'Inicia sesion para responder'}
+                        />
+                        <button type="submit" className="btn btn-outline">Responder</button>
+                      </form>
                     </div>
                   ))
                 )}

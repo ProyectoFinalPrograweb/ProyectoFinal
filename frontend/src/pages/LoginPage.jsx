@@ -246,13 +246,6 @@ export default function LoginPage() {
                 >
                   <span>G</span> Google
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-outline social-btn"
-                  onClick={() => handleSocialLogin('facebook')}
-                >
-                  <span>f</span> Facebook
-                </button>
               </div>
             </form>
           )}

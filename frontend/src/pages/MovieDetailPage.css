@@ -270,7 +270,9 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--color-text);
+  text-decoration: none;
 }
+.resena-nombre:hover { color: var(--color-primary); }
 .resena-fecha {
   display: block;
   font-size: 0.72rem;
@@ -287,6 +289,89 @@
 .resena-footer { display: flex; justify-content: flex-end; }
 .resena-like-btn { font-size: 0.8rem; color: var(--color-text-muted); }
 .resena-like-btn:hover { color: var(--color-primary); }
+
+.resena-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.resena-reaction-btn {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.04);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 7px 12px;
+}
+.resena-reaction-btn:hover,
+.resena-reaction-btn.active {
+  border-color: rgba(233,30,140,0.45);
+  color: var(--color-primary);
+  background: rgba(233,30,140,0.1);
+}
+
+.resena-respuestas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 2px solid rgba(233,30,140,0.35);
+  padding-left: var(--spacing-md);
+}
+
+.resena-respuesta {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.resena-respuesta-avatar {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--gradient-magenta);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 800;
+  overflow: hidden;
+  text-decoration: none;
+}
+.resena-respuesta-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.resena-respuesta-nombre {
+  color: var(--color-text);
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.resena-respuesta-nombre:hover { color: var(--color-primary); }
+.resena-respuesta p {
+  color: rgba(240,240,240,0.78);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+
+.resena-reply-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.resena-reply-form .btn {
+  min-height: 42px;
+  padding: 8px 14px;
+}
 
 /* Detalles técnicos */
 .detail-tecnicos {
@@ -335,4 +420,5 @@
   .detail-actions { display: flex; flex-direction: row; }
   .detail-hero { height: 300px; }
   .detail-main { margin-top: -100px; }
+  .resena-reply-form { grid-template-columns: 1fr; }
 }

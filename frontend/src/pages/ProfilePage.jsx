@@ -8,6 +8,7 @@ import './ProfilePage.css';
 export default function ProfilePage() {
   const navigate = useNavigate();
   const [peliculas, setPeliculas] = useState([]);
+  const [socialProfile, setSocialProfile] = useState(null);
   const [user, setUser] = useState(getCurrentUser());
   const [profileOpen, setProfileOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
@@ -29,6 +30,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!user) return;
     apiRequest('/favoritos').then(response => setPeliculas(response.data || []));
+    apiRequest(`/usuarios/${user.id}`).then(response => setSocialProfile(response.data));
   }, [user]);
 
   useEffect(() => {
@@ -159,8 +161,9 @@ export default function ProfilePage() {
             <p className="profile-bio">Usuario activo de Cinema ITO conectado con datos reales del backend.</p>
             <div className="profile-social-stats">
               <div className="social-stat"><span className="social-stat-num">{peliculas.length}</span><span className="social-stat-label">Favoritas</span></div>
-              <div className="social-stat"><span className="social-stat-num">{user.id}</span><span className="social-stat-label">ID Usuario</span></div>
-              <div className="social-stat"><span className="social-stat-num">1</span><span className="social-stat-label">Lista</span></div>
+              <div className="social-stat"><span className="social-stat-num">{socialProfile?.seguidores_count || 0}</span><span className="social-stat-label">Seguidores</span></div>
+              <div className="social-stat"><span className="social-stat-num">{socialProfile?.seguidos_count || 0}</span><span className="social-stat-label">Siguiendo</span></div>
+              <div className="social-stat"><span className="social-stat-num">{socialProfile?.resenas_count || 0}</span><span className="social-stat-label">Resenas</span></div>
             </div>
           </div>
           <div className="profile-actions">
@@ -198,6 +201,35 @@ export default function ProfilePage() {
               </Link>
             ))}
           </div>
+        </section>
+
+        <section className="profile-reviews animate-fade-in delay-200">
+          <div className="section-header">
+            <h2>Mis resenas</h2>
+          </div>
+          {!socialProfile?.resenas?.length ? (
+            <p className="no-resenas">Todavia no has escrito resenas.</p>
+          ) : (
+            <div className="public-review-list">
+              {socialProfile.resenas.slice(0, 6).map(resena => (
+                <article key={resena.id} className="public-review-card">
+                  <div>
+                    <Link to={`/pelicula/${resena.pelicula_id}`} className="public-review-title">
+                      {resena.pelicula_titulo}
+                    </Link>
+                    <span className="resena-fecha">{resena.fecha}</span>
+                  </div>
+                  <StarRating rating={resena.calificacion} max={5} size="sm" />
+                  <p>{resena.comentario}</p>
+                  <div className="public-review-meta">
+                    <span>{resena.likes} likes</span>
+                    <span>{resena.dislikes} dislikes</span>
+                    <span>{resena.respuestas?.length || 0} respuestas</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="profile-settings animate-fade-in delay-300">

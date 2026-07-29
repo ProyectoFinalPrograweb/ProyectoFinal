@@ -47,6 +47,16 @@ public function favoritos()
     return $this->belongsToMany(Pelicula::class, 'favoritos', 'usuario_id', 'pelicula_id')->withTimestamps();
 }
 
+public function seguidores()
+{
+    return $this->belongsToMany(User::class, 'user_follows', 'followed_id', 'follower_id')->withTimestamps();
+}
+
+public function seguidos()
+{
+    return $this->belongsToMany(User::class, 'user_follows', 'follower_id', 'followed_id')->withTimestamps();
+}
+
     /**
      * The attributes that should be hidden for serialization.
      *

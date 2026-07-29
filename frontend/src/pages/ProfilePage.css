@@ -157,6 +157,7 @@
 
 /* Películas recientes */
 .profile-peliculas { margin-bottom: var(--spacing-2xl); }
+.profile-reviews { margin-bottom: var(--spacing-2xl); }
 
 .profile-peliculas-grid {
   display: grid;
@@ -213,6 +214,47 @@
   overflow: hidden;
   text-overflow: ellipsis;
   margin-bottom: 4px;
+}
+
+.public-review-list {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.public-review-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.public-review-title {
+  color: var(--color-text);
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  text-decoration: none;
+}
+.public-review-title:hover { color: var(--color-primary); }
+
+.public-review-card p {
+  color: rgba(240,240,240,0.8);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.public-review-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 /* Settings */
