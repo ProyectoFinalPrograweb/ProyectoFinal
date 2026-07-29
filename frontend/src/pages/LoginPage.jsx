@@ -358,7 +358,7 @@ export default function LoginPage() {
           {tab === 'register' && (
             <form className="login-form animate-fade-in" onSubmit={handleRegister}>
               <div className="login-greeting">
-                <h2>Unete a Cinema ITO</h2>
+                <h2>Forma parte de Cinema ITO</h2>
                 <p>Crea tu cuenta y forma parte de la comunidad cinefila universitaria.</p>
               </div>
 
