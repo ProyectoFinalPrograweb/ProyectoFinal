@@ -112,7 +112,7 @@
   font-size: 0.88rem;
 }
 
-/* Estadísticas */
+/* EstadÃ­sticas */
 .profile-stats {
   margin-bottom: var(--spacing-2xl);
 }
@@ -155,7 +155,7 @@
   letter-spacing: 0.04em;
 }
 
-/* Películas recientes */
+/* PelÃ­culas recientes */
 .profile-peliculas { margin-bottom: var(--spacing-2xl); }
 .profile-reviews { margin-bottom: var(--spacing-2xl); }
 
