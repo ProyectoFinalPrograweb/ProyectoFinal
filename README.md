@@ -17,6 +17,7 @@ Aplicacion web full stack para descubrir, guardar, comentar y calificar pelicula
 | API base | https://srv1829255.hstgr.cloud/api |
 | Repositorio | https://github.com/ProyectoFinalPrograweb/ProyectoFinal |
 | GitHub Project | https://github.com/orgs/ProyectoFinalPrograweb/projects/1/views/1 |
+| Prototipo Penpot | https://design.penpot.app/#/view?file-id=8b1c6e78-ea22-8156-8008-6398cd11c1f8&page-id=8b1c6e78-ea22-8156-8008-6398cd11c1f9&section=interactions&index=0&share-id=8b1c6e78-ea22-8156-8008-63a033528947 |
 
 ## Descripcion
 
@@ -65,6 +66,16 @@ Las recomendaciones de peliculas suelen perderse en conversaciones, redes social
 - Panel de Administrador.
 - Panel de Moderador.
 - Coleccion Bruno para demostrar endpoints.
+
+## Diseno UI
+
+El prototipo navegable fue trabajado en Penpot:
+
+```text
+https://design.penpot.app/#/view?file-id=8b1c6e78-ea22-8156-8008-6398cd11c1f8&page-id=8b1c6e78-ea22-8156-8008-6398cd11c1f9&section=interactions&index=0&share-id=8b1c6e78-ea22-8156-8008-63a033528947
+```
+
+La interfaz implementada mantiene la identidad visual del prototipo: fondo oscuro, acentos magenta, logo propio de Cinema ITO, tarjetas de peliculas, navegacion por roles y pantallas principales para usuario, moderador y administrador.
 
 ## Roles y permisos
 
@@ -336,6 +347,8 @@ GREEN_API_TOKEN_INSTANCE=
 ```
 
 Se usa para enviar el enlace de recuperacion de contrasena por WhatsApp.
+
+La comunicacion movil solicitada en la entrega se cubre con WhatsApp, ya que la indicacion final de clase permitio usar SMS o WhatsApp. En este proyecto se implemento WhatsApp porque queda ligado a una accion real del sistema: recuperacion de contrasena.
 
 ## Endpoints principales
 
