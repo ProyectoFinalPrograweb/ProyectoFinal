@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
@@ -72,15 +73,34 @@ class AuthController extends Controller
             ->redirect();
     }
 
-    public function handleProviderCallback(string $provider)
+    public function handleProviderCallback(Request $request, string $provider)
     {
         if (! $this->socialProviderIsConfigured($provider)) {
             return $this->redirectToFrontendWithError("El acceso con {$provider} aun no esta configurado.");
         }
 
+        if ($request->filled('error')) {
+            $message = $request->query('error_description')
+                ?: $request->query('error')
+                ?: 'El proveedor cancelo el inicio de sesion.';
+
+            Log::warning('OAuth provider returned an error.', [
+                'provider' => $provider,
+                'error' => $request->query('error'),
+                'description' => $request->query('error_description'),
+            ]);
+
+            return $this->redirectToFrontendWithError($message);
+        }
+
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            Log::warning('OAuth callback failed.', [
+                'provider' => $provider,
+                'message' => $exception->getMessage(),
+            ]);
+
             return $this->redirectToFrontendWithError('No se pudo validar la cuenta social. Intentalo de nuevo.');
         }
 
