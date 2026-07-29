@@ -539,7 +539,7 @@ Body utilizado:
 
 Resultado: `200 OK`. La API autentica al administrador, devuelve los datos del usuario con rol `Administrador` y genera un token de acceso para rutas protegidas.
 
-![Login de administrador](docs/evidencias/bruno/01-login-admin.png)
+![Login de administrador](bruno/evidencias/01-login-admin.png)
 
 ### 2. Login de Cinefilo
 
@@ -560,7 +560,7 @@ Body utilizado:
 
 Resultado: `200 OK`. La API autentica al usuario estandar con rol `Cinefilo` y genera un token propio para probar permisos limitados.
 
-![Login de cinefilo](docs/evidencias/bruno/02-login-cinefilo.png)
+![Login de cinefilo](bruno/evidencias/02-login-cinefilo.png)
 
 ### 3. Ruta protegida de Administrador
 
@@ -573,7 +573,7 @@ Authorization: Bearer TOKEN_ADMIN
 
 Resultado: `200 OK`. El token de administrador permite consultar el resumen del panel administrativo, incluyendo peliculas, usuarios, resenas, generos y roles.
 
-![Resumen protegido de administrador](docs/evidencias/bruno/03-admin-resumen.png)
+![Resumen protegido de administrador](bruno/evidencias/03-admin-resumen.png)
 
 ### 4. Error 403 por rol incorrecto
 
@@ -586,7 +586,7 @@ Authorization: Bearer TOKEN_CINEFILO
 
 Resultado: `403 Forbidden`. El usuario `Cinefilo` no tiene permiso para acceder al panel administrativo. Esta prueba demuestra que el middleware por rol funciona en el backend.
 
-![Error 403 por rol incorrecto](docs/evidencias/bruno/04-error-403.png)
+![Error 403 por rol incorrecto](bruno/evidencias/04-error-403.png)
 
 ### 5. Error 422 por registro invalido
 
@@ -608,7 +608,7 @@ Body utilizado:
 
 Resultado: `422 Unprocessable Entity`. Laravel rechaza el correo invalido y la contrasena insegura. Esto demuestra validaciones de Form Request en el backend.
 
-![Error 422 por registro invalido](docs/evidencias/bruno/05-error-422.png)
+![Error 422 por registro invalido](bruno/evidencias/05-error-422.png)
 
 ### 6. Error 404 por pelicula inexistente
 
@@ -620,7 +620,7 @@ GET https://srv1829255.hstgr.cloud/api/peliculas/999999
 
 Resultado: `404 Not Found`. La API responde correctamente cuando se solicita una pelicula que no existe.
 
-![Error 404 por pelicula inexistente](docs/evidencias/bruno/06-error-404.png)
+![Error 404 por pelicula inexistente](bruno/evidencias/06-error-404.png)
 
 ### 7. Recuperacion por correo
 
@@ -641,7 +641,7 @@ Body utilizado:
 
 Resultado: `200 OK`. El sistema genera el enlace de recuperacion y lo envia por correo.
 
-![Recuperacion por correo](docs/evidencias/bruno/07-forgot-email.png)
+![Recuperacion por correo](bruno/evidencias/07-forgot-email.png)
 
 ### 8. Recuperacion por WhatsApp
 
@@ -663,7 +663,7 @@ Body utilizado:
 
 Resultado: `200 OK`. El sistema genera el enlace de recuperacion y lo envia por WhatsApp mediante GREEN-API.
 
-![Recuperacion por WhatsApp](docs/evidencias/bruno/08-forgot-whatsapp.png)
+![Recuperacion por WhatsApp](bruno/evidencias/08-forgot-whatsapp.png)
 
 ## Despliegue en VPS
 
