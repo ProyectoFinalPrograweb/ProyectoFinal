@@ -149,7 +149,7 @@
 .detail-sinopsis {
   font-size: 0.95rem;
   line-height: 1.8;
-  color: rgba(240,240,240,0.75);
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -283,7 +283,7 @@
 .resena-comentario {
   font-size: 0.88rem;
   line-height: 1.7;
-  color: rgba(240,240,240,0.8);
+  color: var(--color-text-muted);
   margin: 0;
 }
 .resena-footer { display: flex; justify-content: flex-end; }
@@ -356,7 +356,7 @@
 }
 .resena-respuesta-nombre:hover { color: var(--color-primary); }
 .resena-respuesta p {
-  color: rgba(240,240,240,0.78);
+  color: var(--color-text-muted);
   font-size: 0.82rem;
   line-height: 1.5;
   margin: 4px 0 0;

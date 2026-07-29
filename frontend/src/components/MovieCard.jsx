@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Check, Heart, Play, Plus } from 'lucide-react';
 import { apiRequest, getCurrentUser } from '../services/api';
 import './MovieCard.css';
 
@@ -39,7 +40,7 @@ export default function MovieCard({ pelicula, variant = 'default' }) {
             className="card-list-image"
             onError={e => { e.target.src = '/movie_posters.png'; }}
           />
-          {pelicula.vista && <span className="card-list-vista-badge">✓ Vista</span>}
+          {pelicula.vista && <span className="card-list-vista-badge"><Check size={14} style={{marginRight:'4px'}} /> Vista</span>}
           <span className="rating-badge card-list-rating">{pelicula.calificacion_promedio}</span>
         </Link>
 
@@ -52,7 +53,7 @@ export default function MovieCard({ pelicula, variant = 'default' }) {
               className={`card-list-heart ${liked ? 'active' : ''}`}
               onClick={toggleFavorite}
             >
-              {liked ? '♥' : '♡'}
+              <Heart size={20} fill={liked ? "currentColor" : "none"} />
             </button>
           </div>
           <p className="card-list-meta">
@@ -66,10 +67,10 @@ export default function MovieCard({ pelicula, variant = 'default' }) {
           </div>
           <div className="card-list-actions">
             <Link to={`/pelicula/${pelicula.id}`} className="btn btn-primary">
-              ▶ Ver Detalles
+              <Play size={16} fill="currentColor" /> Ver Detalles
             </Link>
             <button className={`btn btn-outline ${liked ? 'in-list' : ''}`} onClick={toggleFavorite}>
-              {liked ? '✓ En Mi Lista' : '+ Mi Lista'}
+              {liked ? <><Check size={16} /> En Mi Lista</> : <><Plus size={16} /> Mi Lista</>}
             </button>
           </div>
         </div>
@@ -111,19 +112,19 @@ export default function MovieCard({ pelicula, variant = 'default' }) {
             </div>
             <p className="card-hover-sinopsis">{pelicula.sinopsis?.slice(0, 100)}...</p>
             <div className="card-hover-actions">
-              <button className="card-play-btn">▶</button>
+              <button className="card-play-btn"><Play size={20} fill="currentColor" /></button>
               <button
                 className={`card-list-btn ${liked ? 'active' : ''}`}
                 onClick={toggleFavorite}
               >
-                {liked ? '✓' : '+'}
+                {liked ? <Check size={20} /> : <Plus size={20} />}
               </button>
             </div>
           </div>
         )}
 
         {/* Vista badge */}
-        {pelicula.vista && <span className="card-vista-badge">✓</span>}
+        {pelicula.vista && <span className="card-vista-badge"><Check size={14} /></span>}
       </Link>
 
       <div className="card-info">

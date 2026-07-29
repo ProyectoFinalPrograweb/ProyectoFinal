@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Bookmark, Search, Plus } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
 import Footer from '../components/Footer';
 import { apiRequest, getCurrentUser } from '../services/api';
@@ -90,7 +91,7 @@ export default function MyListPage() {
 
         {!user && (
           <div className="mylist-empty animate-fade-in">
-            <div className="empty-icon">C</div>
+            <div className="empty-icon"><Bookmark size={48} /></div>
             <h3>Inicia sesion</h3>
             <p>Necesitas iniciar sesion para ver tu lista.</p>
             <Link to="/login" className="btn btn-primary">Iniciar Sesion</Link>
@@ -107,7 +108,7 @@ export default function MyListPage() {
 
             <div className="mylist-controls animate-fade-in delay-200">
               <div className="mylist-search input-icon-wrap">
-                <span className="icon">@</span>
+                <span className="icon" style={{display:'flex',alignItems:'center'}}><Search size={18} color="#888" /></span>
                 <input
                   id="mylist-search"
                   type="text"
@@ -143,7 +144,7 @@ export default function MyListPage() {
               <p>Cargando lista...</p>
             ) : filtered.length === 0 ? (
               <div className="mylist-empty animate-fade-in">
-                <div className="empty-icon">C</div>
+                <div className="empty-icon"><Bookmark size={48} /></div>
                 <h3>No hay peliculas aqui</h3>
                 <p>{search ? `No encontramos "${search}" en tu lista.` : 'Tu lista esta vacia. Explora y agrega peliculas.'}</p>
                 <Link to="/explorar" className="btn btn-primary">Explorar Peliculas</Link>
@@ -151,7 +152,7 @@ export default function MyListPage() {
             ) : view === 'grid' ? (
               <div className="mylist-grid animate-fade-in">
                 {filtered.map(renderMovieWithActions)}
-                <Link to="/explorar" className="add-card"><span className="add-card-icon">+</span><span>Agregar Nueva</span></Link>
+                <Link to="/explorar" className="add-card"><span className="add-card-icon" style={{display:'flex',alignItems:'center',justifyContent:'center'}}><Plus size={32} /></span><span>Agregar Nueva</span></Link>
               </div>
             ) : (
               <div className="mylist-list-view animate-fade-in">

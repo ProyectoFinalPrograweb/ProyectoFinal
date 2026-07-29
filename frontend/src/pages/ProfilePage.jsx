@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Film, Clock, Star, UserCog } from 'lucide-react';
 import Footer from '../components/Footer';
 import StarRating from '../components/StarRating';
 import { apiRequest, clearSession, getAuthToken, getCurrentUser, saveSession } from '../services/api';
@@ -25,6 +26,10 @@ export default function ProfilePage() {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
+  const [usersModalOpen, setUsersModalOpen] = useState(false);
+  const [usersModalTitle, setUsersModalTitle] = useState('');
+  const [usersList, setUsersList] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const initials = user?.name?.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase() || 'U';
 
   useEffect(() => {
@@ -123,6 +128,28 @@ export default function ProfilePage() {
     }
   };
 
+  const fetchFollowers = async () => {
+    setUsersModalTitle('Seguidores');
+    setUsersModalOpen(true);
+    setLoadingUsers(true);
+    try {
+      const response = await apiRequest(`/usuarios/${user.id}/seguidores`);
+      setUsersList(response.data || []);
+    } catch {}
+    setLoadingUsers(false);
+  };
+
+  const fetchFollowing = async () => {
+    setUsersModalTitle('Siguiendo');
+    setUsersModalOpen(true);
+    setLoadingUsers(true);
+    try {
+      const response = await apiRequest(`/usuarios/${user.id}/seguidos`);
+      setUsersList(response.data || []);
+    } catch {}
+    setLoadingUsers(false);
+  };
+
   if (!user) {
     return (
       <div className="page-wrapper">
@@ -161,9 +188,9 @@ export default function ProfilePage() {
             <p className="profile-bio">Usuario activo de Cinema ITO conectado con datos reales del backend.</p>
             <div className="profile-social-stats">
               <div className="social-stat"><span className="social-stat-num">{peliculas.length}</span><span className="social-stat-label">Favoritas</span></div>
-              <div className="social-stat"><span className="social-stat-num">{socialProfile?.seguidores_count || 0}</span><span className="social-stat-label">Seguidores</span></div>
-              <div className="social-stat"><span className="social-stat-num">{socialProfile?.seguidos_count || 0}</span><span className="social-stat-label">Siguiendo</span></div>
-              <div className="social-stat"><span className="social-stat-num">{socialProfile?.resenas_count || 0}</span><span className="social-stat-label">Resenas</span></div>
+              <div className="social-stat" onClick={fetchFollowers} style={{cursor: 'pointer'}}><span className="social-stat-num">{socialProfile?.seguidores_count || 0}</span><span className="social-stat-label">Seguidores</span></div>
+              <div className="social-stat" onClick={fetchFollowing} style={{cursor: 'pointer'}}><span className="social-stat-num">{socialProfile?.seguidos_count || 0}</span><span className="social-stat-label">Siguiendo</span></div>
+              <div className="social-stat"><span className="social-stat-num">{socialProfile?.seguidos_count || 0}</span><span className="social-stat-label">Reseñas</span></div>
             </div>
           </div>
           <div className="profile-actions">
@@ -177,10 +204,10 @@ export default function ProfilePage() {
         <section className="profile-stats animate-fade-in delay-100">
           <h2>Mis Estadisticas</h2>
           <div className="stats-grid">
-            <div className="stat-card"><span className="stat-icon">P</span><span className="stat-card-num">{peliculas.length}</span><span className="stat-card-label">Peliculas guardadas</span></div>
-            <div className="stat-card"><span className="stat-icon">H</span><span className="stat-card-num">{peliculas.length * 2}h</span><span className="stat-card-label">Horas estimadas</span></div>
-            <div className="stat-card"><span className="stat-icon">*</span><span className="stat-card-num">{promedio}</span><span className="stat-card-label">Calificacion promedio</span></div>
-            <div className="stat-card"><span className="stat-icon">R</span><span className="stat-card-num">{user.role}</span><span className="stat-card-label">Rol</span></div>
+            <div className="stat-card"><span className="stat-icon"><Film size={24} /></span><span className="stat-card-num">{peliculas.length}</span><span className="stat-card-label">Peliculas guardadas</span></div>
+            <div className="stat-card"><span className="stat-icon"><Clock size={24} /></span><span className="stat-card-num">{peliculas.length * 2}h</span><span className="stat-card-label">Horas estimadas</span></div>
+            <div className="stat-card"><span className="stat-icon"><Star size={24} /></span><span className="stat-card-num">{promedio}</span><span className="stat-card-label">Calificacion promedio</span></div>
+            <div className="stat-card"><span className="stat-icon"><UserCog size={24} /></span><span className="stat-card-num">{user.role}</span><span className="stat-card-label">Rol</span></div>
           </div>
         </section>
 
@@ -329,6 +356,31 @@ export default function ProfilePage() {
               <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Guardando...' : 'Actualizar'}</button>
             </div>
           </form>
+        </div>
+      )}
+
+      {usersModalOpen && (
+        <div className="profile-modal-backdrop">
+          <div className="profile-modal">
+            <div className="profile-modal-header">
+              <h3>{usersModalTitle}</h3>
+              <button type="button" className="profile-modal-close" onClick={() => setUsersModalOpen(false)}>x</button>
+            </div>
+            <div className="users-list-container" style={{maxHeight: '400px', overflowY: 'auto'}}>
+              {loadingUsers ? (
+                <p>Cargando...</p>
+              ) : usersList.length === 0 ? (
+                <p style={{color: '#888'}}>No hay usuarios para mostrar.</p>
+              ) : (
+                usersList.map(u => (
+                  <div key={u.id} style={{display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)'}}>
+                    <img src={u.avatar || '/default_avatar.png'} alt={u.name} style={{width: '40px', height: '40px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover'}} onError={e => { e.target.src = '/movie_posters.png'; }} />
+                    <span style={{fontWeight: 'bold'}}>{u.name}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
 

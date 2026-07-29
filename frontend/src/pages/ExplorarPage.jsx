@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Popcorn, Globe, Search, Clapperboard, Star, Check, Plus } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
 import Footer from '../components/Footer';
 import { apiRequest, buildQuery, buscarPeliculasApi, importarYFavoritoApi, getCurrentUser } from '../services/api';
@@ -18,12 +19,12 @@ export default function ExplorarPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Modo de búsqueda: 'local' o 'api'
   const [modoBusqueda, setModoBusqueda] = useState('local');
   const [apiResults, setApiResults] = useState([]);
   const [apiLoading, setApiLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [addedIds, setAddedIds] = useState([]);
+  const [importLoading, setImportLoading] = useState(null);
 
   const user = getCurrentUser();
 
@@ -49,28 +50,30 @@ export default function ExplorarPage() {
     }
   }, [search, generoId, orden, page, modoBusqueda]);
 
-  const handleSearchApi = async (e) => {
+  const handleSearchSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!search.trim()) return;
-    setModoBusqueda('api');
-    setApiLoading(true);
-    setMessage(null);
-    try {
-      const res = await buscarPeliculasApi(search);
-      setApiResults(res.data || []);
-    } catch (err) {
-      setError('No se pudo conectar con la API de películas.');
-    } finally {
-      setApiLoading(false);
+    
+    if (modoBusqueda === 'local') {
+      setPage(1);
+    } else {
+      setModoBusqueda('api');
+      setApiLoading(true);
+      setMessage(null);
+      try {
+        const res = await buscarPeliculasApi(search);
+        setApiResults(res.data || []);
+      } catch (err) {
+        setError('No se pudo conectar con la API de películas.');
+      } finally {
+        setApiLoading(false);
+      }
     }
   };
 
-  const handleAgregarAMiLista = async (movie, vista = false) => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
+  const toggleImport = async (movie, vista = false) => {
+    if (!user) { navigate('/login'); return; }
+    setImportLoading(movie.external_id);
     try {
       const response = await importarYFavoritoApi({
         external_id: movie.external_id,
@@ -80,11 +83,12 @@ export default function ExplorarPage() {
         imagen: movie.imagen,
         vista: vista,
       });
-
       setAddedIds(prev => [...prev, movie.external_id]);
       setMessage({ type: 'success', text: response.message || `¡"${movie.titulo}" agregada a tu lista!` });
     } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'Error al guardar la película.' });
+      setMessage({ type: 'error', text: err.message || 'Error al guardar.' });
+    } finally {
+      setImportLoading(null);
     }
   };
 
@@ -97,19 +101,18 @@ export default function ExplorarPage() {
             <p>Busca en nuestro catálogo o descubre cualquier película en línea (API TMDB).</p>
           </div>
 
-          {/* Pestañas para cambiar entre catálogo local y búsqueda online */}
           <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
             <button
-              className={`btn ${modoBusqueda === 'local' ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setModoBusqueda('local'); setMessage(null); }}
+              className={`tab-btn ${modoBusqueda === 'local' ? 'active' : ''}`}
+              onClick={() => { setModoBusqueda('local'); setPage(1); setMessage(null); }}
             >
-              🍿 Catálogo Local
+              <Popcorn size={18} style={{marginRight:'8px'}} /> Catálogo Local
             </button>
             <button
-              className={`btn ${modoBusqueda === 'api' ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setModoBusqueda('api'); handleSearchApi(); }}
+              className={`tab-btn ${modoBusqueda === 'api' ? 'active' : ''}`}
+              onClick={() => { setModoBusqueda('api'); setPage(1); setMessage(null); }}
             >
-              🌐 Buscar Online (API TMDB)
+              <Globe size={18} style={{marginRight:'8px'}} /> Buscar Online (API TMDB)
             </button>
           </div>
         </div>
@@ -121,8 +124,8 @@ export default function ExplorarPage() {
         )}
 
         <div className="explorar-controls animate-fade-in delay-200" style={{ marginTop: '20px' }}>
-          <form className="explorar-search input-icon-wrap" onSubmit={modoBusqueda === 'api' ? handleSearchApi : e => e.preventDefault()}>
-            <span className="icon">🔍</span>
+          <form className="search-form" onSubmit={handleSearchSubmit}>
+            <span className="icon" style={{display: 'flex', alignItems: 'center'}}><Search size={20} color="#888" /></span>
             <input
               id="explorar-search"
               type="text"
@@ -131,11 +134,7 @@ export default function ExplorarPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
-            {modoBusqueda === 'api' && (
-              <button type="submit" className="btn btn-primary" style={{ position: 'absolute', right: '4px', top: '4px', bottom: '4px', padding: '0 16px' }}>
-                Buscar API
-              </button>
-            )}
+            <button type="submit" className="btn btn-primary">Buscar</button>
           </form>
 
           {modoBusqueda === 'local' && (
@@ -154,11 +153,10 @@ export default function ExplorarPage() {
           )}
         </div>
 
-        {/* Sección de resultados Locales */}
         {modoBusqueda === 'local' && (
           <div className="explorar-results animate-fade-in delay-300">
             {loading ? (
-              <p className="results-count">Cargando películas...</p>
+              <p className="results-count">Cargando...</p>
             ) : error ? (
               <p className="form-message error">{error}</p>
             ) : (
@@ -166,14 +164,15 @@ export default function ExplorarPage() {
                 <p className="results-count">{meta.total ?? peliculas.length} películas encontradas</p>
                 {peliculas.length === 0 ? (
                   <div className="mylist-empty">
-                    <div className="empty-icon">🎬</div>
-                    <h3>Sin resultados locales</h3>
-                    <p>No encontramos "{search}" en el catálogo local.</p>
-                    {search.trim() && (
-                      <button className="btn btn-primary" style={{ marginTop: '12px' }} onClick={handleSearchApi}>
-                        🔍 Buscar "{search}" en la API de películas
-                      </button>
-                    )}
+                    <div className="empty-state">
+                      <div className="empty-icon"><Clapperboard size={48} /></div>
+                      <p>No encontramos "{search}" en el catálogo local.</p>
+                      {search.trim() && (
+                        <button className="btn btn-primary" onClick={() => setModoBusqueda('api')}>
+                          <Search size={16} style={{marginRight: '6px'}} /> Buscar "{search}" en la API de películas
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -182,13 +181,9 @@ export default function ExplorarPage() {
                     </div>
                     {meta.last_page > 1 && (
                       <div className="pagination-controls">
-                        <button className="btn btn-outline" disabled={page <= 1} onClick={() => setPage(current => current - 1)}>
-                          Anterior
-                        </button>
+                        <button className="btn btn-outline" disabled={page <= 1} onClick={() => setPage(current => current - 1)}>Anterior</button>
                         <span>Página {meta.current_page} de {meta.last_page}</span>
-                        <button className="btn btn-outline" disabled={page >= meta.last_page} onClick={() => setPage(current => current + 1)}>
-                          Siguiente
-                        </button>
+                        <button className="btn btn-outline" disabled={page >= meta.last_page} onClick={() => setPage(current => current + 1)}>Siguiente</button>
                       </div>
                     )}
                   </>
@@ -198,18 +193,16 @@ export default function ExplorarPage() {
           </div>
         )}
 
-        {/* Sección de resultados API Online */}
         {modoBusqueda === 'api' && (
           <div className="explorar-results animate-fade-in delay-300">
             {apiLoading ? (
-              <p className="results-count">Consultando API de películas...</p>
+              <p className="results-count">Consultando API...</p>
             ) : (
               <>
                 <p className="results-count">{apiResults.length} resultados globales en la API de TMDB</p>
                 {apiResults.length === 0 ? (
-                  <div className="mylist-empty">
-                    <div className="empty-icon">🔍</div>
-                    <h3>No se encontraron resultados en la API</h3>
+                  <div className="empty-state">
+                    <div className="empty-icon"><Search size={48} /></div>
                     <p>Intenta buscando con otro título o palabra clave.</p>
                   </div>
                 ) : (
@@ -217,43 +210,35 @@ export default function ExplorarPage() {
                     {apiResults.map(movie => {
                       const isAdded = addedIds.includes(movie.external_id);
                       return (
-                        <div key={movie.external_id} className="movie-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                        <div key={movie.external_id} className="movie-card" style={{ display: 'flex', flexDirection: 'column' }}>
                           <div className="card-image-wrap">
-                            <img
-                              src={movie.imagen}
-                              alt={movie.titulo}
-                              className="card-image"
-                              onError={e => { e.target.src = '/movie_posters.png'; }}
-                            />
+                            <img src={movie.imagen} alt={movie.titulo} className="card-image" onError={e => { e.target.src = '/movie_posters.png'; }} />
                             <div className="card-overlay">
-                              <span className="rating-badge card-rating">⭐ {movie.calificacion_api}</span>
+                              <span className="rating-badge card-rating"><Star size={12} fill="currentColor" /> {movie.calificacion_api}</span>
                             </div>
                           </div>
-
-                          <div className="card-info" style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                            <div>
-                              <h4 className="card-title" style={{ fontSize: '1rem', marginBottom: '4px' }}>{movie.titulo}</h4>
-                              <p className="card-meta" style={{ fontSize: '0.8rem', color: '#888' }}>Año {movie.anio || 'N/A'}</p>
-                              <p style={{ fontSize: '0.75rem', color: '#aaa', marginTop: '6px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                {movie.sinopsis || 'Sin sinopsis disponible.'}
-                              </p>
-                            </div>
-
+                          <div className="card-info" style={{ padding: '12px', flex: 1 }}>
+                            <h4 className="card-title">{movie.titulo}</h4>
+                            <p className="card-meta">Año {movie.anio || 'N/A'}</p>
                             <div style={{ marginTop: '12px', display: 'flex', gap: '6px', flexDirection: 'column' }}>
                               <button
                                 className={`btn ${isAdded ? 'btn-outline in-list' : 'btn-primary'}`}
                                 style={{ width: '100%', fontSize: '0.85rem', padding: '6px 10px' }}
-                                onClick={() => handleAgregarAMiLista(movie, false)}
+                                onClick={() => toggleImport(movie, false)}
+                                disabled={importLoading === movie.external_id}
                               >
-                                {isAdded ? '✓ En Mi Lista' : '+ Agregar a Mi Lista'}
+                                {isAdded ? <><Check size={14} style={{marginRight: '4px'}} /> En Mi Lista</> : <><Plus size={14} style={{marginRight: '4px'}} /> Agregar a Mi Lista</>}
                               </button>
-                              <button
-                                className="btn btn-outline"
-                                style={{ width: '100%', fontSize: '0.85rem', padding: '6px 10px' }}
-                                onClick={() => handleAgregarAMiLista(movie, true)}
-                              >
-                                ✓ Marcar como Vista
-                              </button>
+                              {isAdded && (
+                                <button
+                                  className="btn btn-outline"
+                                  style={{ width: '100%', fontSize: '0.85rem', padding: '6px 10px' }}
+                                  onClick={() => toggleImport(movie, true)}
+                                  disabled={importLoading === movie.external_id}
+                                >
+                                  <Check size={14} style={{marginRight: '4px'}} /> Marcar como Vista
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>

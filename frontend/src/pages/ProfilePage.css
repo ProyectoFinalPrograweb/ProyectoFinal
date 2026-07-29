@@ -112,7 +112,7 @@
   font-size: 0.88rem;
 }
 
-/* EstadÃ­sticas */
+/* Estadísticas */
 .profile-stats {
   margin-bottom: var(--spacing-2xl);
 }
@@ -155,7 +155,7 @@
   letter-spacing: 0.04em;
 }
 
-/* PelÃ­culas recientes */
+/* Películas recientes */
 .profile-peliculas { margin-bottom: var(--spacing-2xl); }
 .profile-reviews { margin-bottom: var(--spacing-2xl); }
 
@@ -242,7 +242,7 @@
 .public-review-title:hover { color: var(--color-primary); }
 
 .public-review-card p {
-  color: rgba(240,240,240,0.8);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   line-height: 1.6;
   margin: 0;
@@ -377,4 +377,10 @@
     align-items: stretch;
     flex-direction: column;
   }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .profile-social-stats { flex-direction: column; gap: var(--spacing-md); align-items: flex-start; }
+  .profile-name { font-size: 1.5rem; }
 }

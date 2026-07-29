@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { MessageSquare, Film, Grid, Shield, Search } from 'lucide-react';
 import Footer from '../components/Footer';
 import { apiRequest, getCurrentUser } from '../services/api';
 import './AdminPage.css';
@@ -61,10 +62,10 @@ export default function ModeratorPage() {
         {message && <p className={`form-message ${message.type}`}>{message.text}</p>}
 
         <div className="admin-stats animate-fade-in delay-100">
-          <div className="admin-stat-card"><span className="admin-stat-icon">R</span><div><span className="admin-stat-num">{data.resenas.length}</span><span className="admin-stat-label">Resenas</span></div></div>
-          <div className="admin-stat-card"><span className="admin-stat-icon">P</span><div><span className="admin-stat-num">{data.peliculas.length}</span><span className="admin-stat-label">Peliculas</span></div></div>
-          <div className="admin-stat-card"><span className="admin-stat-icon">G</span><div><span className="admin-stat-num">{data.generos.length}</span><span className="admin-stat-label">Generos</span></div></div>
-          <div className="admin-stat-card"><span className="admin-stat-icon">M</span><div><span className="admin-stat-num">Limitado</span><span className="admin-stat-label">Permisos</span></div></div>
+          <div className="admin-stat-card"><span className="admin-stat-icon"><MessageSquare size={24} /></span><div><span className="admin-stat-num">{data.resenas.length}</span><span className="admin-stat-label">Resenas</span></div></div>
+          <div className="admin-stat-card"><span className="admin-stat-icon"><Film size={24} /></span><div><span className="admin-stat-num">{data.peliculas.length}</span><span className="admin-stat-label">Peliculas</span></div></div>
+          <div className="admin-stat-card"><span className="admin-stat-icon"><Grid size={24} /></span><div><span className="admin-stat-num">{data.generos.length}</span><span className="admin-stat-label">Generos</span></div></div>
+          <div className="admin-stat-card"><span className="admin-stat-icon"><Shield size={24} /></span><div><span className="admin-stat-num">Limitado</span><span className="admin-stat-label">Permisos</span></div></div>
         </div>
 
         <div className="admin-tabs animate-fade-in delay-200">
@@ -73,7 +74,7 @@ export default function ModeratorPage() {
 
         <div className="admin-toolbar animate-fade-in delay-300">
           <div className="admin-search input-icon-wrap">
-            <span className="icon">@</span>
+            <span className="icon" style={{display:'flex',alignItems:'center'}}><Search size={18} color="#888" /></span>
             <input type="text" className="form-input" placeholder={`Buscar en ${tab.toLowerCase()}...`} value={search} onChange={e => setSearch(e.target.value)} />
           </div>
         </div>

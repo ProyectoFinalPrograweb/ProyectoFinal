@@ -22,6 +22,9 @@ use App\Models\ResenaReaccion;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserFollow;
+use App\Notifications\ReviewLikedNotification;
+use App\Notifications\ReviewRepliedNotification;
+use App\Notifications\UserFollowedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -155,6 +158,18 @@ class CinemaController extends Controller
         ]);
     }
 
+    public function seguidoresList(User $user): JsonResponse
+    {
+        $seguidores = $user->seguidores()->select('users.id', 'users.name', 'users.avatar')->get();
+        return response()->json(['data' => $seguidores]);
+    }
+
+    public function seguidosList(User $user): JsonResponse
+    {
+        $seguidos = $user->seguidos()->select('users.id', 'users.name', 'users.avatar')->get();
+        return response()->json(['data' => $seguidos]);
+    }
+
     public function toggleSeguir(Request $request, User $user): JsonResponse
     {
         if ($request->user()->id === $user->id) {
@@ -178,6 +193,8 @@ class CinemaController extends Controller
             ]);
             $siguiendo = true;
             $message = 'Ahora sigues este perfil.';
+
+            $user->notify(new UserFollowedNotification($request->user()));
         }
 
         return response()->json([
@@ -206,6 +223,10 @@ class CinemaController extends Controller
                 ['tipo' => $validated['tipo']]
             );
             $miReaccion = $validated['tipo'];
+
+            if ($miReaccion === 'like' && $resena->usuario_id !== $request->user()->id) {
+                $resena->usuario->notify(new ReviewLikedNotification($request->user(), $resena));
+            }
         }
 
         return response()->json([
@@ -226,6 +247,10 @@ class CinemaController extends Controller
             'usuario_id' => $request->user()->id,
             'comentario' => $validated['comentario'],
         ])->load('usuario');
+
+        if ($resena->usuario_id !== $request->user()->id) {
+            $resena->usuario->notify(new ReviewRepliedNotification($request->user(), $resena));
+        }
 
         return response()->json([
             'message' => 'Respuesta publicada.',

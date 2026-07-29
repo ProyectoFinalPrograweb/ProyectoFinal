@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Lock } from 'lucide-react';
 import { apiRequest } from '../services/api';
 import './LoginPage.css';
 
@@ -84,7 +85,7 @@ export default function ResetPassword() {
             <div className="form-group">
               <label className="form-label">Nueva contrasena</label>
               <div className="input-icon-wrap">
-                <span className="icon">*</span>
+                <span className="icon" style={{display:'flex',alignItems:'center'}}><Lock size={18} color="#888" /></span>
                 <input
                   type="password"
                   className="form-input"
@@ -107,7 +108,7 @@ export default function ResetPassword() {
             <div className="form-group">
               <label className="form-label">Confirmar contrasena</label>
               <div className="input-icon-wrap">
-                <span className="icon">*</span>
+                <span className="icon" style={{display:'flex',alignItems:'center'}}><Lock size={18} color="#888" /></span>
                 <input
                   type="password"
                   className="form-input"

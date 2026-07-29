@@ -12,6 +12,10 @@ export default function PublicProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [usersModalOpen, setUsersModalOpen] = useState(false);
+  const [usersModalTitle, setUsersModalTitle] = useState('');
+  const [usersList, setUsersList] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   const loadProfile = () => {
     setLoading(true);
@@ -44,6 +48,28 @@ export default function PublicProfilePage() {
     }
   };
 
+  const fetchFollowers = async () => {
+    setUsersModalTitle('Seguidores');
+    setUsersModalOpen(true);
+    setLoadingUsers(true);
+    try {
+      const response = await apiRequest(`/usuarios/${id}/seguidores`);
+      setUsersList(response.data || []);
+    } catch {}
+    setLoadingUsers(false);
+  };
+
+  const fetchFollowing = async () => {
+    setUsersModalTitle('Siguiendo');
+    setUsersModalOpen(true);
+    setLoadingUsers(true);
+    try {
+      const response = await apiRequest(`/usuarios/${id}/seguidos`);
+      setUsersList(response.data || []);
+    } catch {}
+    setLoadingUsers(false);
+  };
+
   if (loading) {
     return <div className="page-wrapper"><main className="profile-main container"><p>Cargando perfil...</p></main></div>;
   }
@@ -71,8 +97,8 @@ export default function PublicProfilePage() {
             <p className="profile-rol"><span className="badge badge-primary">{profile.role}</span></p>
             <p className="profile-bio">Perfil publico con sus resenas y actividad dentro de Cinema ITO.</p>
             <div className="profile-social-stats">
-              <div className="social-stat"><span className="social-stat-num">{profile.seguidores_count}</span><span className="social-stat-label">Seguidores</span></div>
-              <div className="social-stat"><span className="social-stat-num">{profile.seguidos_count}</span><span className="social-stat-label">Siguiendo</span></div>
+              <div className="social-stat" onClick={fetchFollowers} style={{cursor: 'pointer'}}><span className="social-stat-num">{profile.seguidores_count}</span><span className="social-stat-label">Seguidores</span></div>
+              <div className="social-stat" onClick={fetchFollowing} style={{cursor: 'pointer'}}><span className="social-stat-num">{profile.seguidos_count}</span><span className="social-stat-label">Siguiendo</span></div>
               <div className="social-stat"><span className="social-stat-num">{profile.resenas_count}</span><span className="social-stat-label">Resenas</span></div>
             </div>
           </div>
@@ -119,6 +145,31 @@ export default function PublicProfilePage() {
           )}
         </section>
       </main>
+
+      {usersModalOpen && (
+        <div className="profile-modal-backdrop">
+          <div className="profile-modal">
+            <div className="profile-modal-header">
+              <h3>{usersModalTitle}</h3>
+              <button type="button" className="profile-modal-close" onClick={() => setUsersModalOpen(false)}>x</button>
+            </div>
+            <div className="users-list-container" style={{maxHeight: '400px', overflowY: 'auto'}}>
+              {loadingUsers ? (
+                <p>Cargando...</p>
+              ) : usersList.length === 0 ? (
+                <p style={{color: '#888'}}>No hay usuarios para mostrar.</p>
+              ) : (
+                usersList.map(u => (
+                  <div key={u.id} style={{display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)'}}>
+                    <img src={u.avatar || '/default_avatar.png'} alt={u.name} style={{width: '40px', height: '40px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover'}} onError={e => { e.target.src = '/movie_posters.png'; }} />
+                    <span style={{fontWeight: 'bold'}}>{u.name}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

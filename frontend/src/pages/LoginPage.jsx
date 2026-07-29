@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Mail, Lock, User } from 'lucide-react';
 import { API_URL, saveSession } from '../services/api';
 import './LoginPage.css';
 
@@ -191,7 +192,7 @@ export default function LoginPage() {
               <div className="form-group">
                 <label className="form-label">Correo electronico</label>
                 <div className="input-icon-wrap">
-                  <span className="icon">@</span>
+                  <span className="icon" style={{display:'flex',alignItems:'center'}}><Mail size={18} color="#888" /></span>
                   <input
                     id="login-email"
                     type="email"
@@ -211,7 +212,7 @@ export default function LoginPage() {
                   <button type="button" className="forgot-link" onClick={() => switchTab('forgot')}>Olvidaste tu contrasena?</button>
                 </div>
                 <div className="input-icon-wrap">
-                  <span className="icon">*</span>
+                  <span className="icon" style={{display:'flex',alignItems:'center'}}><Lock size={18} color="#888" /></span>
                   <input
                     id="login-password"
                     type={showPass ? 'text' : 'password'}
@@ -260,7 +261,7 @@ export default function LoginPage() {
               <div className="form-group">
                 <label className="form-label">Correo electronico</label>
                 <div className="input-icon-wrap">
-                  <span className="icon">@</span>
+                  <span className="icon" style={{display:'flex',alignItems:'center'}}><Mail size={18} color="#888" /></span>
                   <input
                     id="forgot-email"
                     type="email"
@@ -296,7 +297,7 @@ export default function LoginPage() {
               <div className="form-group">
                 <label className="form-label">Nombre completo</label>
                 <div className="input-icon-wrap">
-                  <span className="icon">U</span>
+                  <span className="icon" style={{display:'flex',alignItems:'center'}}><User size={18} color="#888" /></span>
                   <input
                     id="reg-nombre"
                     type="text"
@@ -313,7 +314,7 @@ export default function LoginPage() {
               <div className="form-group">
                 <label className="form-label">Correo electronico</label>
                 <div className="input-icon-wrap">
-                  <span className="icon">@</span>
+                  <span className="icon" style={{display:'flex',alignItems:'center'}}><Mail size={18} color="#888" /></span>
                   <input
                     id="reg-email"
                     type="email"
@@ -330,7 +331,7 @@ export default function LoginPage() {
               <div className="form-group">
                 <label className="form-label">Contrasena</label>
                 <div className="input-icon-wrap">
-                  <span className="icon">*</span>
+                  <span className="icon" style={{display:'flex',alignItems:'center'}}><Lock size={18} color="#888" /></span>
                   <input
                     id="reg-password"
                     type={showPass ? 'text' : 'password'}

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CinemaController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -19,10 +20,18 @@ Route::get('/generos', [CinemaController::class, 'generos']);
 Route::get('/peliculas', [CinemaController::class, 'peliculas']);
 Route::get('/peliculas/{pelicula}', [CinemaController::class, 'pelicula']);
 Route::get('/usuarios/{user}', [CinemaController::class, 'perfilUsuario']);
+Route::get('/usuarios/{user}/seguidores', [CinemaController::class, 'seguidoresList']);
+Route::get('/usuarios/{user}/seguidos', [CinemaController::class, 'seguidosList']);
 Route::middleware('auth:sanctum')->post('/peliculas/{pelicula}/resenas', [CinemaController::class, 'storeResena']);
 Route::middleware('auth:sanctum')->post('/usuarios/{user}/seguir', [CinemaController::class, 'toggleSeguir']);
 Route::middleware('auth:sanctum')->post('/resenas/{resena}/reaccion', [CinemaController::class, 'reaccionarResena']);
 Route::middleware('auth:sanctum')->post('/resenas/{resena}/respuestas', [CinemaController::class, 'responderResena']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+});
 Route::middleware('auth:sanctum')->get('/favoritos', [CinemaController::class, 'favoritos']);
 Route::middleware('auth:sanctum')->post('/peliculas/{pelicula}/favorito', [CinemaController::class, 'toggleFavorito']);
 Route::middleware('auth:sanctum')->put('/peliculas/{pelicula}/vista', [CinemaController::class, 'updateVista']);

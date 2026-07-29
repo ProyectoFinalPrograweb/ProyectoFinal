@@ -14,8 +14,10 @@
   --color-bg-secondary:#111111;
   --color-bg-card:     #161616;
   --color-bg-elevated: #1e1e1e;
-  --color-border:      rgba(255, 255, 255, 0.08);
-  --color-border-hover:rgba(255, 255, 255, 0.18);
+  --color-border:      rgba(255, 255, 255, 0.15);
+  --color-border-hover:rgba(255, 255, 255, 0.25);
+  --color-navbar-bg:   rgba(10, 10, 10, 0.85);
+  --color-icon-bg:     rgba(255, 255, 255, 0.05);
 
   /* Acento magenta / rosa */
   --color-primary:     #e91e8c;
@@ -28,9 +30,9 @@
   --color-gold-dim:    rgba(245, 158, 11, 0.15);
 
   /* Texto */
-  --color-text:        #f0f0f0;
-  --color-text-muted:  #888888;
-  --color-text-dim:    #555555;
+  --color-text:        #ffffff;
+  --color-text-muted:  #a3a3a3;
+  --color-text-dim:    #777777;
 
   /* Gradientes */
   --gradient-hero:     linear-gradient(to right, rgba(10,10,10,0.95) 40%, transparent 100%);
@@ -71,6 +73,28 @@
 
   /* Navbar height */
   --navbar-height: 64px;
+}
+
+[data-theme='light'] {
+  --color-bg:          #ffffff;
+  --color-bg-secondary:#f9f9f9;
+  --color-bg-card:     #f0f0f0;
+  --color-bg-elevated: #ffffff;
+  --color-border:      rgba(0, 0, 0, 0.15);
+  --color-border-hover:rgba(0, 0, 0, 0.25);
+  --color-navbar-bg:   rgba(255, 255, 255, 0.85);
+  --color-icon-bg:     rgba(0, 0, 0, 0.04);
+  
+  --color-text:        #000000;
+  --color-text-muted:  #444444;
+  --color-text-dim:    #666666;
+
+  --gradient-hero:     linear-gradient(to right, rgba(255,255,255,0.95) 40%, transparent 100%);
+  --gradient-card:     linear-gradient(to top, rgba(255,255,255,0.95) 0%, transparent 60%);
+  --gradient-dark:     linear-gradient(180deg, transparent 0%, var(--color-bg) 100%);
+  
+  --shadow-card:       0 4px 12px rgba(0,0,0,0.08);
+  --shadow-elevated:   0 8px 30px rgba(0,0,0,0.15);
 }
 
 /* ============================================================
@@ -181,13 +205,13 @@ p {
 }
 
 .btn-outline {
-  background: rgba(255,255,255,0.06);
+  background: var(--color-bg-card);
   color: var(--color-text);
   border: 1px solid var(--color-border);
   backdrop-filter: blur(10px);
 }
 .btn-outline:hover {
-  background: rgba(255,255,255,0.12);
+  background: var(--color-bg-elevated);
   border-color: var(--color-border-hover);
   transform: translateY(-2px);
 }
@@ -279,7 +303,7 @@ p {
 }
 
 .badge-dark {
-  background: rgba(255,255,255,0.08);
+  background: var(--color-bg-elevated);
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);
 }

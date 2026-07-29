@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { RefreshCw, Search, Star } from 'lucide-react';
 import Footer from '../components/Footer';
 import { apiRequest, getCurrentUser, buscarPeliculasApi, obtenerDetalleApi, sincronizarPostersApi } from '../services/api';
 import './AdminPage.css';
@@ -17,6 +18,7 @@ export default function AdminPage() {
   const [apiSearchQuery, setApiSearchQuery] = useState('');
   const [apiSearchResults, setApiSearchResults] = useState([]);
   const [apiSearchLoading, setApiSearchLoading] = useState(false);
+  const [loadingSync, setLoadingSync] = useState(false);
   const user = getCurrentUser();
 
   const loadData = () => {
@@ -94,18 +96,18 @@ export default function AdminPage() {
     setApiSearchResults([]);
   };
 
-  const handleSincronizarPosters = async () => {
-    setLoading(true);
+  const syncPosters = async () => {
+    setLoadingSync(true);
     try {
       const response = await sincronizarPostersApi();
       setMessage({ type: 'success', text: response.message });
       loadData();
     } catch (err) {
       setMessage({ type: 'error', text: 'Error al sincronizar los posters.' });
-      setLoading(false);
+    } finally {
+      setLoadingSync(false);
     }
   };
-
 
   const submitMovie = async e => {
     e.preventDefault();
@@ -210,8 +212,8 @@ export default function AdminPage() {
           </div>
           {tab === 'Peliculas' && (
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button className="btn btn-outline" onClick={handleSincronizarPosters} title="Obtener posters reales para todas las peliculas mediante la API de TMDB">
-                🔄 Sincronizar Posters (API)
+              <button className="btn btn-primary" onClick={syncPosters} disabled={loadingSync}>
+                {loadingSync ? 'Sincronizando...' : <><RefreshCw size={16} style={{marginRight: '8px'}} /> Sincronizar Posters (API)</>}
               </button>
               <button className="btn btn-primary" onClick={() => openMovieModal()}>
                 + Agregar Pelicula
@@ -302,9 +304,9 @@ export default function AdminPage() {
                 <h3>{modal.item.id ? 'Editar pelicula' : 'Agregar pelicula'}</h3>
 
                 {/* Sección para buscar datos e imagen desde la API externa */}
-                <div style={{ background: 'rgba(255,255,255,0.04)', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'block', marginBottom: '6px' }}>
-                    🔍 Auto-llenar desde API (TMDB):
+                <div className="form-group api-search-group" style={{ background: 'rgba(255,255,255,0.04)', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <label className="form-label" style={{ fontSize: '0.85rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <Search size={16} /> Auto-llenar desde API (TMDB):
                   </label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <input
@@ -315,7 +317,7 @@ export default function AdminPage() {
                       onChange={e => setApiSearchQuery(e.target.value)}
                     />
                     <button type="button" className="btn btn-outline" onClick={handleBuscarApi} disabled={apiSearchLoading}>
-                      {apiSearchLoading ? '...' : 'Buscar API'}
+                      {apiSearchLoading ? '...' : 'Buscar'}
                     </button>
                   </div>
 
@@ -336,8 +338,10 @@ export default function AdminPage() {
                         >
                           <img src={res.imagen} alt={res.titulo} style={{ width: '32px', height: '48px', objectFit: 'cover', borderRadius: '4px' }} />
                           <div style={{ flex: 1, fontSize: '0.85rem' }}>
-                            <strong style={{ display: 'block', color: '#fff' }}>{res.titulo} ({res.anio || 'N/A'})</strong>
-                            <span style={{ color: '#888', fontSize: '0.75rem' }}>⭐ {res.calificacion_api}</span>
+                            <div className="api-result-info">
+                              <strong style={{ display: 'block', color: '#fff' }}>{res.titulo} ({res.anio || 'N/A'})</strong>
+                              <span style={{ color: '#888', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Star size={12} /> {res.calificacion_api}</span>
+                            </div>
                           </div>
                           <span style={{ color: '#e50914', fontSize: '0.8rem' }}>Usar datos</span>
                         </div>
