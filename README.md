@@ -514,6 +514,157 @@ Content-Type: application/json
 }
 ```
 
+## Evidencias Bruno
+
+Las siguientes capturas muestran pruebas ejecutadas contra la API desplegada en el VPS.
+
+> Nota: los tokens y datos sensibles fueron ocultados en las imagenes antes de documentarlas.
+
+### 1. Login de Administrador
+
+Endpoint probado:
+
+```http
+POST https://srv1829255.hstgr.cloud/api/login
+```
+
+Body utilizado:
+
+```json
+{
+  "email": "admin@cinemaito.com",
+  "password": "Admin123!"
+}
+```
+
+Resultado: `200 OK`. La API autentica al administrador, devuelve los datos del usuario con rol `Administrador` y genera un token de acceso para rutas protegidas.
+
+![Login de administrador](docs/evidencias/bruno/01-login-admin.png)
+
+### 2. Login de Cinefilo
+
+Endpoint probado:
+
+```http
+POST https://srv1829255.hstgr.cloud/api/login
+```
+
+Body utilizado:
+
+```json
+{
+  "email": "user@cinemaito.com",
+  "password": "Usuario123!"
+}
+```
+
+Resultado: `200 OK`. La API autentica al usuario estandar con rol `Cinefilo` y genera un token propio para probar permisos limitados.
+
+![Login de cinefilo](docs/evidencias/bruno/02-login-cinefilo.png)
+
+### 3. Ruta protegida de Administrador
+
+Endpoint probado:
+
+```http
+GET https://srv1829255.hstgr.cloud/api/admin/resumen
+Authorization: Bearer TOKEN_ADMIN
+```
+
+Resultado: `200 OK`. El token de administrador permite consultar el resumen del panel administrativo, incluyendo peliculas, usuarios, resenas, generos y roles.
+
+![Resumen protegido de administrador](docs/evidencias/bruno/03-admin-resumen.png)
+
+### 4. Error 403 por rol incorrecto
+
+Endpoint probado:
+
+```http
+GET https://srv1829255.hstgr.cloud/api/admin/resumen
+Authorization: Bearer TOKEN_CINEFILO
+```
+
+Resultado: `403 Forbidden`. El usuario `Cinefilo` no tiene permiso para acceder al panel administrativo. Esta prueba demuestra que el middleware por rol funciona en el backend.
+
+![Error 403 por rol incorrecto](docs/evidencias/bruno/04-error-403.png)
+
+### 5. Error 422 por registro invalido
+
+Endpoint probado:
+
+```http
+POST https://srv1829255.hstgr.cloud/api/register
+```
+
+Body utilizado:
+
+```json
+{
+  "name": "Prueba Error",
+  "email": "correo-no-valido",
+  "password": "123"
+}
+```
+
+Resultado: `422 Unprocessable Entity`. Laravel rechaza el correo invalido y la contrasena insegura. Esto demuestra validaciones de Form Request en el backend.
+
+![Error 422 por registro invalido](docs/evidencias/bruno/05-error-422.png)
+
+### 6. Error 404 por pelicula inexistente
+
+Endpoint probado:
+
+```http
+GET https://srv1829255.hstgr.cloud/api/peliculas/999999
+```
+
+Resultado: `404 Not Found`. La API responde correctamente cuando se solicita una pelicula que no existe.
+
+![Error 404 por pelicula inexistente](docs/evidencias/bruno/06-error-404.png)
+
+### 7. Recuperacion por correo
+
+Endpoint probado:
+
+```http
+POST https://srv1829255.hstgr.cloud/api/forgot-password
+```
+
+Body utilizado:
+
+```json
+{
+  "email": "user@cinemaito.com",
+  "method": "email"
+}
+```
+
+Resultado: `200 OK`. El sistema genera el enlace de recuperacion y lo envia por correo.
+
+![Recuperacion por correo](docs/evidencias/bruno/07-forgot-email.png)
+
+### 8. Recuperacion por WhatsApp
+
+Endpoint probado:
+
+```http
+POST https://srv1829255.hstgr.cloud/api/forgot-password
+```
+
+Body utilizado:
+
+```json
+{
+  "email": "correo@ejemplo.com",
+  "method": "whatsapp",
+  "telefono": "9510000000"
+}
+```
+
+Resultado: `200 OK`. El sistema genera el enlace de recuperacion y lo envia por WhatsApp mediante GREEN-API.
+
+![Recuperacion por WhatsApp](docs/evidencias/bruno/08-forgot-whatsapp.png)
+
 ## Despliegue en VPS
 
 Ruta del proyecto en el servidor:
