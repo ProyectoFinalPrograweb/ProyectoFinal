@@ -185,8 +185,97 @@ Guarda notificaciones de:
 ## Relaciones principales
 
 <img width="2227" height="1491" alt="Untitled (1)" src="https://github.com/user-attachments/assets/91e8c3c7-b525-4677-8378-ab41e58ae3f1" />
+  
+1. Tablas de Dominio  
+Estas tablas representan el núcleo de la aplicación, gestionando usuarios, películas y las interacciones sociales entre ellos.  
+  
+roles  
+  
+Propósito: Define los niveles de acceso o tipos de usuario en el sistema.  
+  
+Relaciones:  
 
-
+1:N con users.    
+  
+users  
+  
+Propósito: Almacena la información principal de los usuarios registrados, incluyendo nombre, email, contraseña y avatar.  
+  
+Claves Foráneas: role_id.  
+  
+Relaciones: Es la tabla central. Se relaciona de forma directa con películas creadas, reseñas, respuestas, reacciones, listas de favoritos y con el sistema de seguidores.  
+  
+generos  
+  
+Propósito: Catálogo de géneros cinematográficos.  
+  
+Relaciones:  
+  
+1:N con peliculas.  
+  
+peliculas  
+  
+Propósito: Almacena el catálogo de películas con detalles como título, director, año de lanzamiento, sinopsis e imagen de portada.  
+  
+Claves Foráneas:  
+  
+genero_id.  
+  
+usuario_id.  
+  
+user_follows  
+  
+Propósito: Tabla pivote que gestiona el sistema social de "seguidores". Es una relación recursiva de la tabla users.  
+  
+Claves Foráneas: follower_id y followed_id.  
+  
+favoritos  
+  
+Propósito: Gestiona las listas de películas de los usuarios. Permite marcar películas como favoritas o llevar un registro mediante la bandera booleana visto.  
+  
+Claves Foráneas: usuario_id y pelicula_id.  
+  
+resenas  
+  
+Propósito: Almacena los comentarios principales y las calificaciones que los usuarios otorgan a las películas.  
+  
+Claves Foráneas: usuario_id  y pelicula_id.  
+  
+resena_reacciones  
+  
+Propósito: Permite a los usuarios reaccionar a las reseñas de otros usuarios.  
+  
+Claves Foráneas: resena_id y usuario_id.  
+  
+resena_respuestas  
+  
+Propósito: Habilita hilos de conversación, permitiendo que los usuarios dejen un comentario en respuesta a una reseña específica.  
+  
+Claves Foráneas: resena_id y usuario_id.  
+  
+2. Tablas del Sistema e Infraestructura  
+El bloque superior del diagrama contiene las tablas de soporte que el framework genera automáticamente para manejar la arquitectura subyacente:  
+  
+Autenticación y Seguridad:  
+  
+password_reset_tokens: Almacena los tokens temporales para recuperar contraseñas.  
+  
+personal_access_tokens: Gestiona tokens de API para la autenticación de usuarios.  
+  
+sessions: Maneja el almacenamiento de las sesiones activas de los usuarios en la base de datos.  
+  
+Gestión de Trabajos en Segundo Plano :  
+  
+jobs, failed_jobs, job_batches: Estas tablas son fundamentales para procesar tareas pesadas de forma asíncrona sin bloquear la navegación del usuario.  
+  
+Caché e Infraestructura:  
+  
+cache, cache_locks: Tablas para almacenar información en caché directamente en la base de datos, mejorando los tiempos de respuesta.  
+  
+migrations: Lleva el control de versiones de la estructura de la base de datos.  
+  
+notifications: Almacena notificaciones del sistema dirigidas a los usuarios.  
+  
 ## Ranking de mejores peliculas
 
 El inicio incluye una seccion llamada "Ranking de mejores peliculas".
