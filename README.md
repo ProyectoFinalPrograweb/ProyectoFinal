@@ -184,22 +184,8 @@ Guarda notificaciones de:
 
 ## Relaciones principales
 
-```mermaid
-erDiagram
-    roles ||--o{ users : asigna
-    users ||--o{ peliculas : publica
-    generos ||--o{ peliculas : clasifica
-    users ||--o{ resenas : escribe
-    peliculas ||--o{ resenas : recibe
-    users ||--o{ favoritos : guarda
-    peliculas ||--o{ favoritos : aparece_en
-    users ||--o{ resena_reacciones : reacciona
-    resenas ||--o{ resena_reacciones : recibe
-    resenas ||--o{ resena_respuestas : tiene
-    users ||--o{ resena_respuestas : responde
-    users ||--o{ user_follows : follower
-    users ||--o{ user_follows : followed
-```
+<img width="2227" height="1491" alt="Untitled (1)" src="https://github.com/user-attachments/assets/91e8c3c7-b525-4677-8378-ab41e58ae3f1" />
+
 
 ## Ranking de mejores peliculas
 
