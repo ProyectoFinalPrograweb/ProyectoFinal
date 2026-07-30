@@ -68,14 +68,101 @@
 .estreno-sinopsis { font-size: 0.78rem; color: var(--color-text-muted); margin: 0; line-height: 1.5; }
 
 /* Controles */
+/* Controles */
 .explorar-controls {
-  display: flex;
-  gap: var(--spacing-md);
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 220px 220px;
+  align-items: end;
+  gap: 14px;
+  margin-top: 20px;
   margin-bottom: var(--spacing-xl);
-  flex-wrap: wrap;
+  padding: 16px;
+  background: rgba(20, 20, 20, 0.72);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
-.explorar-search { flex: 1; min-width: 240px; }
-.explorar-select { width: auto; min-width: 180px; }
+
+.search-form {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-form .icon {
+  width: 24px;
+  height: 44px;
+  justify-content: center;
+}
+
+.search-form .form-input,
+.explorar-select {
+  height: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.search-form .btn {
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 999px;
+}
+
+.explorar-select {
+  width: 100%;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.explorar-header {
+  margin-bottom: 18px;
+}
+
+.explorar-header h1 {
+  margin-bottom: 8px;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1;
+}
+
+.explorar-header p {
+  max-width: 720px;
+  font-size: 1rem;
+}
+
+.explorar-header .tab-btn {
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+}
+
+.explorar-header .tab-btn.active {
+  color: white;
+  background: rgba(225, 25, 127, 0.22);
+  border-color: var(--color-primary);
+}
+
+@media (max-width: 900px) {
+  .explorar-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .search-form {
+    grid-template-columns: 24px 1fr;
+  }
+
+  .search-form .btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
 
 /* Resultados */
 .results-count {
