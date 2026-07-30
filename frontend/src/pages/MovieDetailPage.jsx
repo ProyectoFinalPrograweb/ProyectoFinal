@@ -63,6 +63,21 @@ export default function MovieDetailPage() {
     }
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setMessage({ type: 'success', text: 'Link copiado al portapapeles.' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'No se pudo copiar el link de la pelicula.' });
+    }
+
+    window.setTimeout(() => {
+      setMessage(null);
+    }, 2500);
+  };
+
   const handleSubmitResena = async e => {
     e.preventDefault();
 
@@ -210,7 +225,7 @@ export default function MovieDetailPage() {
               <button className={`btn ${enLista ? 'btn-outline in-list' : 'btn-outline'} detail-action-btn`} onClick={handleToggleFavorito}>
                 {enLista ? 'En Mi Lista' : '+ Mi Lista'}
               </button>
-              <button className="btn btn-ghost detail-share-btn">Compartir</button>
+              <button type="button" className="btn btn-ghost detail-share-btn" onClick={handleShare}>Compartir</button>
             </div>
 
             <div className="detail-mini-stats">

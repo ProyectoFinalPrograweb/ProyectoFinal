@@ -60,7 +60,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'Inicio de sesion correcto.',
+            'message' => 'Inicio de sesion correcto en Cinema ITO.',
             'user' => UserResource::make($user),
             'token' => $user->createToken('frontend')->plainTextToken,
         ]);

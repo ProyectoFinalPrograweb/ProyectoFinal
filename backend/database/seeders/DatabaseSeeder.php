@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Fernanda Soto', 'email' => 'fernanda@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
             ['name' => 'Gabriel Torres', 'email' => 'gabriel@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Moderador'],
             ['name' => 'Hilda Ramos', 'email' => 'hilda@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
+            ['name' => 'Romeo Santos', 'email' => 'Romeo@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
             ['name' => 'Ivan Castillo', 'email' => 'ivan@cinemaito.com', 'password' => 'Usuario123!', 'role' => 'Cinefilo'],
         ])->mapWithKeys(function (array $user) use ($roles) {
             $model = User::updateOrCreate(
